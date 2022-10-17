@@ -27,7 +27,9 @@ export default function MoneyPot( { pot }) {
         <main>
             <h1>{pot.name}</h1>
             <div>
-                <h4>Einkommen</h4>
+                <h1 className="text-3xl font-bold underline">
+                    Hello world!
+                </h1>
                 {incomes && 
                     incomes.map(income => <IncomeItem key={income.id} incomeItem={income} />)}
             </div>
