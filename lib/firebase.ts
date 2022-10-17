@@ -5,7 +5,7 @@ import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, doc, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, doc, query, where, getDocs, QueryDocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import Pot from '../models/Pot';
 
@@ -41,6 +41,21 @@ export async function getUserFromUsername(username: string) {
   return querySnapshot.docs[0];
 }
 
-export function mergeWithId(docSnap): Pot {
-  return {id: docSnap.id, ...docSnap.data()}
+/**
+ * 
+ * @param {QueryDocumentSnapshot<DocumentData>} docSnap 
+ * @returns {Pot} Pot
+ */
+export function mergeWithId<Type>(docSnap: QueryDocumentSnapshot<DocumentData>): Type {
+  return {id: docSnap.id, ...docSnap.data()} as Type;
+}
+
+/**
+ * 
+ * @param {QuerySnapshot<DocumentData>} queryResultReference 
+ * @param {function} callback 
+ * @returns {array} Array of object
+ */
+export function buildListFromFirestoreDocs<Type>(queryResultReference: QuerySnapshot<DocumentData>, callback:(doc: QueryDocumentSnapshot<DocumentData>) => Type): Type[] {
+  return queryResultReference?.docs.map((doc) => callback(doc));
 }

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { UserContext } from "../../lib/context"
 import { collection, doc, query, where, getDocs } from "firebase/firestore"; 
-import { firestore, mergeWithId } from "../../lib/firebase";
+import { firestore, mergeWithId, buildListFromFirestoreDocs } from "../../lib/firebase";
 import Loader from "../Loader/Loader";
 import MoneyPotListItem from "./MoneyPotListItem";
 import Pot from '../../models/Pot';
@@ -15,10 +15,7 @@ export default function MoneyPotList() {
         (async () => {
             const q = query(collection(firestore, "moneypot"), where("uid", "==", user.uid));
             const querySnapshot = await getDocs(q);
-            const moneyPotList: Pot[] = querySnapshot?.docs.map((doc) => {
-                return mergeWithId(doc);
-            });
-            setMoneyPotList(moneyPotList);
+            setMoneyPotList(buildListFromFirestoreDocs<Pot>(querySnapshot, mergeWithId));
         })();
         setLoading(false);
     }, []);

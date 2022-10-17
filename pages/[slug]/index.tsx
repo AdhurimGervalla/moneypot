@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import MoneyPot from "../../components/MoneyPot/MoneyPot";
 
 export default function AdminMoneyPotPage({  }) {
-    const [pot, setPot] = useState({});
+    const [pot, setPot] = useState(null);
 
     const router = useRouter();
     const { slug } = router.query;
@@ -17,7 +17,7 @@ export default function AdminMoneyPotPage({  }) {
     
     useEffect(() => {
         if (slug !== undefined) {
-            const getPot = (async () => {
+            (async () => {
                 const docRef = doc(firestore, "moneypot", potId);
                 const docSnap = await getDoc(docRef);
                 setPot(mergeWithId(docSnap));
@@ -29,8 +29,7 @@ export default function AdminMoneyPotPage({  }) {
     return(
         <AuthCheck>
             <main>
-                <MoneyPot pot={pot} />
-                <SignOutButton />
+                {pot && <MoneyPot pot={pot} />}
             </main>
         </AuthCheck>
     )
