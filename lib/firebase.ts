@@ -5,9 +5,9 @@ import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, doc, query, where, getDocs, QueryDocumentSnapshot, DocumentData, QuerySnapshot } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import Pot from '../models/Pot';
+import { Dispatch, SetStateAction } from "react";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -41,6 +41,27 @@ export async function getUserFromUsername(username: string) {
   return querySnapshot.docs[0];
 }
 
+export async function getDocById(docName: string, docId: string): Promise<DocumentSnapshot<DocumentData>> {
+  const docRef = doc(firestore, docName, docId);
+  const docSnap = await getDoc(docRef);
+  return docSnap;
+}
+
+/**
+ * 
+ * @param collectionRef 
+ * @param callback 
+ * @param constraints 
+ * @returns 
+ */
+export function getSnapshotFromCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, constraints?: QueryConstraint): Unsubscribe {
+  const q = query(collectionRef);
+  return onSnapshot(q, (querySnapshot) => {
+      stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
+  });
+
+}
+
 /**
  * 
  * @param {QueryDocumentSnapshot<DocumentData>} docSnap 
@@ -58,4 +79,22 @@ export function mergeWithId<Type>(docSnap: QueryDocumentSnapshot<DocumentData>):
  */
 export function buildListFromFirestoreDocs<Type>(queryResultReference: QuerySnapshot<DocumentData>, callback:(doc: QueryDocumentSnapshot<DocumentData>) => Type): Type[] {
   return queryResultReference?.docs.map((doc) => callback(doc));
+}
+
+/**
+ * Saves doc to firestore database
+ * @param incomeRef 
+ * @param data 
+ * @returns 
+ */
+export async function saveDoc<Type>(docRef: CollectionReference<DocumentData>, data: Type): Promise<void> {
+  setDoc(doc(docRef), data);
+}
+
+/**
+ * Deletes document from firestore Database
+ * @param docRef 
+ */
+export async function removeDoc(docRef: DocumentReference<unknown>): Promise<void> {
+  deleteDoc(docRef);
 }

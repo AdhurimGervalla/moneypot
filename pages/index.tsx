@@ -10,9 +10,7 @@ import MoneyPotList from '../components/MoneyPot/MoneyPotList'
 export default function Home() {
   return (
     <AuthCheck>
-      <main>
-          <MoneyPotList />
-      </main>
+      <MoneyPotList />
     </AuthCheck>
   )
 }

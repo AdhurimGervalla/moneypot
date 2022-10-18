@@ -4,7 +4,7 @@ import { UserContext } from '../../lib/context';
 
 // Component's children only shown to logged-in users
 export default function AuthCheck(props) {
-  const { username } = useContext(UserContext);
+  const { user, username } = useContext(UserContext);
 
-  return username ? props.children : props.fallback || <Link href="/login">You must be signed in</Link>;
+  return user ? props.children : props.fallback || <Link href="/login">You must be signed in</Link>;
 }

@@ -1,40 +1,28 @@
-import styles from './Navbar.module.css';
 import Link from 'next/link';
 import { useContext } from "react";
 import { UserContext } from "../../lib/context";
 // Top navbar
 export default function Navbar() {
-    const { user, username } = useContext(UserContext);
+    const { user } = useContext(UserContext);
+    let navigationItems = [
+      ['Home', '/'],
+      ['Login', `/login`],
+    ];
+    if (user) {
+      navigationItems = [
+        ['Home', '/'],
+        ['Userprofile', `/profile`],
+        ['Login', `/login`],
+      ]
+    }
 
   return (
-    <nav className={styles.navbar}>
-      <ul className={styles.list}>
-
-        {/* user is signed-in and has username */}
-        {username && (
-          <>
-                      <li>
-              <Link href={`/${username}`}>
-                <img src={user?.photoURL} />
-              </Link>
-            </li>
-          </>
-        )}
-        <li>
-          <Link href="/">
-            <button className="btn-logo">Home</button>
-          </Link>
-        </li>
-
-        {/* user is not signed OR has not created username */}
-        {!username && (
-          <li>
-            <Link href="/login">
-              <button className="btn-blue">Log in</button>
-            </Link>
-          </li>
-        )}
-      </ul>
+    <nav className="flex sm:justify-center space-x-4">
+      {navigationItems.map(([title, url]) => (
+        <Link key={url} href={url}>
+          <a className="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">{title}</a>
+        </Link>
+      ))}
     </nav>
   );
 }

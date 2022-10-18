@@ -1,4 +1,4 @@
-import { auth, firestore, googleAuthProvider } from "../lib/firebase";
+import { auth, firestore, getDocById, googleAuthProvider } from "../lib/firebase";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../lib/context";
@@ -10,13 +10,9 @@ export default function LoginPage(props) {
     const { user, username } = useContext(UserContext);
 
     return(
-        <main>
-            {user ?
-                !username ? <UsernameForm /> : <SignOutButton />
-                :
-                <SignInButton />       
-            }
-        </main>
+        <>
+            {user ? <SignOutButton /> : <SignInButton />}
+        </>
     )
 }
 
@@ -99,12 +95,10 @@ function UsernameForm() {
 
     const checkUsername = useCallback(
         debounce(async (username) => {
-            console.log(username);
             if (username.length > 3) {
                 // write in to database
                 // make batch write
-                const ref = doc(firestore, 'usernames', username);
-                const docSnap = await getDoc(ref);
+                const docSnap = await getDocById('usernames', username)
                 setIsValid(!docSnap.exists());
                 setLoading(false);
             }

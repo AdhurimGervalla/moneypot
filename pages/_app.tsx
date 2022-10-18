@@ -13,7 +13,9 @@ function MyApp({ Component, pageProps }) {
         <Loader show /> :
           <>
             <Navbar />
-            <Component {...pageProps} />
+            <main className='container mx-auto'>
+              <Component {...pageProps} />
+            </main>
           </>
       }
     </UserContext.Provider>
