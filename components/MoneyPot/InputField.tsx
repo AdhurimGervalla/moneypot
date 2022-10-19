@@ -5,7 +5,7 @@ import { saveDoc } from "../../lib/firebase";
 import {Income} from "../../models/Income";
 import Expenditures from "../../models/Expenditures";
 
-export default function InputField({ incomeRef, expenditureRef }) {
+export default function InputField({ incomeState }) {
 
     const [inputValue, setInputValue] = useState('');
 
@@ -13,25 +13,25 @@ export default function InputField({ incomeRef, expenditureRef }) {
         checkInput(inputValue);
     }, [inputValue]);
 
-    const onKeyUp = useCallback(
-        debounce(async (e) => {
-            if (e.keyCode == 13) {
-                const val = e.target.value;
-                const withoutSpace = val.replaceAll(/\s/g,'');
-                setInputValue(withoutSpace);
-            }
-        }, 500),
-        []
-    )
+    const onKeyUp = (e) => {
+        if (e.keyCode == 13) {
+            const val = e.target.value;
+            const withoutSpace = val.replaceAll(/\s/g,'');
+            setInputValue(withoutSpace);
+        }
+    }
+
 
     const checkInput = async (input: string) => {
-        if ( incomeRef && input.includes('+')) {
+        if ( input.includes('+')) {
             const val = prepareString(input, '+');
-            saveDoc<Income>(incomeRef, {"description": val[0], "value": val[1]})
+            const newIncomeList = [{"description": val[0], "value": val[1]},...incomeState[0]];
+            incomeState[1](newIncomeList);
+            //saveDoc<Income>(incomeRef, {"description": val[0], "value": val[1]})
 
-        } else if(expenditureRef && input.includes('-')) {
+        } else if(input.includes('-')) {
             const val = prepareString(input, '-');
-            saveDoc<Expenditures>(expenditureRef, {"description": val[0], "value": val[1]});
+            //saveDoc<Expenditures>(expenditureRef, {"description": val[0], "value": val[1]});
         }
     }
 

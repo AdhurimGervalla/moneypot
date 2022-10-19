@@ -1,6 +1,6 @@
 import { collection, doc, getDocs, onSnapshot, query, Unsubscribe, where } from "firebase/firestore"; 
 import { useEffect, useState } from "react";
-import { firestore, getSnapshotFromCollection, mergeWithId, removeDoc } from "../../lib/firebase";
+import { firestore, getCollectionById, getSnapshotFromCollection, mergeWithId, removeDoc } from "../../lib/firebase";
 import Expenditures from "../../models/Expenditures";
 import { Income } from "../../models/Income";
 import ExpenditureItem from "../ExpenditureItem/ExpenditureItem";
@@ -11,13 +11,22 @@ import InputField from "./InputField";
 export default function MoneyPot( { pot }) {
 
     const [incomes, setIncomes] = useState([]);
+    const [queue, setQueue] = useState([]);
+    const [ready, commit] = useState(true);
     const [expenditures, setExpenditures] = useState([]);
 
-    const staticIncomeRef = collection(firestore, 'moneypot', pot.id, 'income');
-    const unsubscribe: Unsubscribe = getSnapshotFromCollection<Income>(staticIncomeRef, setIncomes)
+    useEffect(() => {
+        const staticIncomeRef = collection(firestore, 'moneypot', pot.id, 'income');
+        getCollectionById(staticIncomeRef, setIncomes);
+    }, []);
 
-    const staticExpenditureRef = collection(firestore, 'moneypot', pot.id, 'expenditure');
-    const unsubscribeExp: Unsubscribe = getSnapshotFromCollection<Expenditures>(staticExpenditureRef, setExpenditures)
+    useEffect(() => {
+
+    }, [incomes]);
+    // const unsubscribe: Unsubscribe = getSnapshotFromCollection<Income>(staticIncomeRef, setIncomes)
+
+    // const staticExpenditureRef = collection(firestore, 'moneypot', pot.id, 'expenditure');
+    // const unsubscribeExp: Unsubscribe = getSnapshotFromCollection<Expenditures>(staticExpenditureRef, setExpenditures)
     const deleteTrigger = async (collectionName: string, itemId: string) => {
         const docRef = doc(firestore, 'moneypot', pot.id, collectionName, itemId )
         removeDoc(docRef);
@@ -35,7 +44,7 @@ export default function MoneyPot( { pot }) {
                         {incomes && 
                             incomes.map(income => <IncomeItem key={income.id} deleteTrigger={deleteTrigger} incomeItem={income} />)}
                     </div>
-                    <div className="text-center"><InputField incomeRef={staticIncomeRef} expenditureRef={staticExpenditureRef} /></div>
+                    <div className="text-center"><InputField key={pot.id} incomeState={[incomes, setIncomes]} /></div>
                     <div>
                         <h4>Ausgaben</h4>
                         {expenditures && 

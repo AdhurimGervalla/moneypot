@@ -47,6 +47,14 @@ export async function getDocById(docName: string, docId: string): Promise<Docume
   return docSnap;
 }
 
+export async function getCollectionById<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, constraints?: QueryConstraint) {
+  console.log('start one time read');
+  const q = query(collectionRef);
+  const querySnapshot = await getDocs(q);
+  console.log('one time read done');
+  stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
+}
+
 /**
  * 
  * @param collectionRef 
