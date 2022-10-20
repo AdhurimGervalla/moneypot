@@ -1,29 +1,19 @@
-import { useEffect, useState } from "react"
+import { Layout } from "../../models/Types";
 
-export default function IncomeItem({ incomeItem, deleteTrigger }) {
-    const [deleteActive, setDeleteActive] = useState(false);
+export default function IncomeItem({ data, deleteTrigger, layout }) {
 
-    const deleteMe = () => {
-        setDeleteActive(true); 
+    let cssClasses = 'bg-red-400';
+    if (layout === Layout.Income) {
+        cssClasses = 'bg-sky-500/[.09]';
     }
-
-    useEffect(() => {
-        (async () => {
-            if (deleteActive) {
-                deleteTrigger('income', incomeItem.id)
-                console.log('would delete me income');
-            }
-        })();
-    }, [deleteActive])
 
     return(
         <>
-            {incomeItem && 
-            <div className="bg-sky-500/[.09] hover:bg-cyan-600 my-5 p-3">
-                {deleteActive && <p>loading ...</p>}
-                <p>{incomeItem.description}</p>
-                <p>{incomeItem.value}</p>
-                <p><a className="text-blue-600 visited:text-black hover:text-black cursor-pointer" onClick={deleteMe}>delete</a></p>
+            {data && 
+            <div className={`${cssClasses} hover:bg-cyan-600 my-5 p-3`}>
+                <p>{data.description}</p>
+                <p>{data.value}</p>
+                <p><a className="text-blue-600 visited:text-black hover:text-black cursor-pointer" onClick={() => deleteTrigger(data, layout)}>delete</a></p>
             </div>
             }
         </>

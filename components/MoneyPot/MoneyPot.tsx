@@ -1,35 +1,44 @@
-import { collection, doc, getDocs, onSnapshot, query, Unsubscribe, where } from "firebase/firestore"; 
 import { useEffect, useState } from "react";
-import { firestore, getCollectionById, getSnapshotFromCollection, mergeWithId, removeDoc } from "../../lib/firebase";
-import Expenditures from "../../models/Expenditures";
-import { Income } from "../../models/Income";
-import ExpenditureItem from "../ExpenditureItem/ExpenditureItem";
+import { Layout } from "../../models/Types";
 import IncomeItem from "../IncomeItem/IncomeItem";
 import InputField from "./InputField";
+import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
+import { Income } from "../../models/Income";
+import Expenditures from "../../models/Expenditures";
 
 
 export default function MoneyPot( { pot }) {
 
     const [incomes, setIncomes] = useState([]);
-    const [queue, setQueue] = useState([]);
-    const [ready, commit] = useState(true);
     const [expenditures, setExpenditures] = useState([]);
+    const [dirty, setDirty] = useState(true);
+    const [total, setTotal] = useState(0);
+
+    const calculateTotal = (): void => {
+        let tempTotal = 0;
+        incomes.forEach((object: Income) => tempTotal += object.value);
+        expenditures.forEach((object: Expenditures) => tempTotal -= object.value);
+        setTotal(tempTotal);
+    };
 
     useEffect(() => {
-        const staticIncomeRef = collection(firestore, 'moneypot', pot.id, 'income');
-        getCollectionById(staticIncomeRef, setIncomes);
-    }, []);
+        setIncomes(getStoredArrayFromSession('IncomeList'));
+        setExpenditures(getStoredArrayFromSession('ExpenditureList'));
+        calculateTotal();
+        setDirty(false);
+    }, [dirty]);
 
-    useEffect(() => {
-
-    }, [incomes]);
-    // const unsubscribe: Unsubscribe = getSnapshotFromCollection<Income>(staticIncomeRef, setIncomes)
-
-    // const staticExpenditureRef = collection(firestore, 'moneypot', pot.id, 'expenditure');
-    // const unsubscribeExp: Unsubscribe = getSnapshotFromCollection<Expenditures>(staticExpenditureRef, setExpenditures)
-    const deleteTrigger = async (collectionName: string, itemId: string) => {
-        const docRef = doc(firestore, 'moneypot', pot.id, collectionName, itemId )
-        removeDoc(docRef);
+    const deleteTrigger = (objectToRemove: {}, layout: Layout) => {
+        let filtered = [];
+        if (layout === Layout.Expenditure) {
+            filtered = expenditures.filter((el) => el !== objectToRemove);
+            saveArrayToSession(filtered, 'ExpenditureList');
+            
+        } else {
+            filtered = incomes.filter((el) => el !== objectToRemove);
+            saveArrayToSession(filtered, 'IncomeList');
+        }
+        setDirty(true);
     }
 
     return(
@@ -38,17 +47,18 @@ export default function MoneyPot( { pot }) {
             {pot &&
                 <div className="grid grid-flow-col grid-cols-3">
                     <div>
-                        <h2 className="text-3xl">
-                            Pot VIew
-                        </h2>
+                        <h4 className="text-xl">Einnahmen</h4>
                         {incomes && 
-                            incomes.map(income => <IncomeItem key={income.id} deleteTrigger={deleteTrigger} incomeItem={income} />)}
+                            incomes.map(income => <IncomeItem layout={Layout.Income} key={income.id} deleteTrigger={deleteTrigger} data={income} />)}
                     </div>
-                    <div className="text-center"><InputField key={pot.id} incomeState={[incomes, setIncomes]} /></div>
+                    <div className="text-center">
+                        <InputField key={pot.id} dirtyState={[dirty, setDirty]} totalState={[total, setTotal]} />
+                        <h1 className="text-5xl mt-12">{total}</h1>
+                    </div>
                     <div>
-                        <h4>Ausgaben</h4>
+                        <h4 className="text-xl">Ausgaben</h4>
                         {expenditures && 
-                            expenditures.map(expenditure => <ExpenditureItem deleteTrigger={deleteTrigger} key={expenditure.id}  item={expenditure} />)}
+                            expenditures.map(expenditure => <IncomeItem layout={Layout.Expenditure} deleteTrigger={deleteTrigger} key={expenditure.id}  data={expenditure} />)}
                     </div>
                 </div>
             }

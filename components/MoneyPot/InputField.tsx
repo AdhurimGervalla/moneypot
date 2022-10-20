@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
-import { doc, setDoc } from "firebase/firestore"; 
-import debounce from 'lodash.debounce';
-import { saveDoc } from "../../lib/firebase";
-import {Income} from "../../models/Income";
-import Expenditures from "../../models/Expenditures";
+import { useEffect, useState } from "react";
+import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
 
-export default function InputField({ incomeState }) {
+export default function InputField({ dirtyState, totalState }) {
 
     const [inputValue, setInputValue] = useState('');
 
@@ -25,12 +21,16 @@ export default function InputField({ incomeState }) {
     const checkInput = async (input: string) => {
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
-            const newIncomeList = [{"description": val[0], "value": val[1]},...incomeState[0]];
-            incomeState[1](newIncomeList);
+            saveArrayToSession([{"description": val[0], "value": val[1]}, ...getStoredArrayFromSession('IncomeList')], 'IncomeList');
+            totalState[1](totalState[0] + val[1]);
+            dirtyState[1](true);
             //saveDoc<Income>(incomeRef, {"description": val[0], "value": val[1]})
 
         } else if(input.includes('-')) {
             const val = prepareString(input, '-');
+            saveArrayToSession([{"description": val[0], "value": val[1]}, ...getStoredArrayFromSession('ExpenditureList')], 'ExpenditureList');
+            totalState[1](totalState[0] - val[1]);
+            dirtyState[1](true);
             //saveDoc<Expenditures>(expenditureRef, {"description": val[0], "value": val[1]});
         }
     }

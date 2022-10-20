@@ -29,7 +29,7 @@ export default function AdminMoneyPotPage({  }) {
 
     return(
         <>
-            {pot && <MoneyPot pot={pot} />}
+            {pot && <MoneyPot pot={pot} key={potId} />}
         </>
     )
 }
