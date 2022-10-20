@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Layout } from "../../models/Types";
-import IncomeItem from "../IncomeItem/IncomeItem";
+import IncomeItem from "../Coin/Coin";
 import InputField from "./InputField";
 import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
-import { Income } from "../../models/Income";
+import { Income } from "../../models/Coin";
 import Expenditures from "../../models/Expenditures";
 
 
@@ -22,8 +22,18 @@ export default function MoneyPot( { pot }) {
     };
 
     useEffect(() => {
-        setIncomes(getStoredArrayFromSession('IncomeList'));
-        setExpenditures(getStoredArrayFromSession('ExpenditureList'));
+        const incomeData = getStoredArrayFromSession('IncomeList');
+        const expenditureData = getStoredArrayFromSession('ExpenditureList');
+        if (incomeData == null || expenditureData == null) {
+            // get Data from firestore if no Session Data exists yet
+            saveArrayToSession([], 'IncomeList');
+            saveArrayToSession([], 'ExpenditureList');
+            setIncomes([]);
+            setExpenditures([]);
+            return;
+        }
+        setIncomes(incomeData);
+        setExpenditures(expenditureData);
         calculateTotal();
         setDirty(false);
     }, [dirty]);
@@ -43,7 +53,7 @@ export default function MoneyPot( { pot }) {
 
     return(
         <div>
-            <h1 className="text-5xl">{pot.name}</h1>
+            <h1 className="text-5xl mb-12">{pot.name}</h1>
             {pot &&
                 <div className="grid grid-flow-col grid-cols-3">
                     <div>
@@ -53,7 +63,7 @@ export default function MoneyPot( { pot }) {
                     </div>
                     <div className="text-center">
                         <InputField key={pot.id} dirtyState={[dirty, setDirty]} totalState={[total, setTotal]} />
-                        <h1 className="text-5xl mt-12">{total}</h1>
+                        <h1 className={`text-5xl mt-12 ${total < 0 ? 'text-red-600' : 'text-green-600'}`}>{total}</h1>
                     </div>
                     <div>
                         <h4 className="text-xl">Ausgaben</h4>
