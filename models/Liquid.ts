@@ -1,5 +1,5 @@
-export interface Coin {
-    id: string,
+export interface LiquidKind {
+    id?: string,
     description: string;
     value: number;
     monthly?: boolean;

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Layout } from "../../models/Types";
-import IncomeItem from "../Coin/Coin";
+import IncomeItem from "../Liquid/Liquid";
 import InputField from "./InputField";
 import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
-import { Income } from "../../models/Coin";
+import { LiquidKind } from "../../models/Liquid";
 import Expenditures from "../../models/Expenditures";
+import FluidPot from "./FluidPot";
+import Liquid from "../Liquid/Liquid";
 
 
 export default function MoneyPot( { pot }) {
@@ -13,10 +15,11 @@ export default function MoneyPot( { pot }) {
     const [expenditures, setExpenditures] = useState([]);
     const [dirty, setDirty] = useState(true);
     const [total, setTotal] = useState(0);
+    const [level, setLevel] = useState('140px');
 
     const calculateTotal = (): void => {
         let tempTotal = 0;
-        incomes.forEach((object: Income) => tempTotal += object.value);
+        incomes.forEach((object: LiquidKind) => tempTotal += object.value);
         expenditures.forEach((object: Expenditures) => tempTotal -= object.value);
         setTotal(tempTotal);
     };
@@ -38,6 +41,14 @@ export default function MoneyPot( { pot }) {
         setDirty(false);
     }, [dirty]);
 
+    useEffect(() => {
+        if (pot.goal) {
+            console.log('setLevel')
+            if (total === 0) setLevel('140px');
+            else setLevel((150 - (150 / (pot.goal / total))) + 'px');
+        }
+    }, [total])
+
     const deleteTrigger = (objectToRemove: {}, layout: Layout) => {
         let filtered = [];
         if (layout === Layout.Expenditure) {
@@ -54,16 +65,20 @@ export default function MoneyPot( { pot }) {
     return(
         <div>
             <h1 className="text-5xl mb-12">{pot.name}</h1>
+            <div className="grid grid-cols-3">
+                <div className="col-start-2 text-center">
+                    <InputField key={pot.id} dirtyState={[dirty, setDirty]} totalState={[total, setTotal]} />
+                </div>
+            </div>
             {pot &&
-                <div className="grid grid-flow-col grid-cols-3">
+                <div className="grid grid-cols-3 gap-4 content-center">
                     <div>
                         <h4 className="text-xl">Einnahmen</h4>
                         {incomes && 
-                            incomes.map(income => <IncomeItem layout={Layout.Income} key={income.id} deleteTrigger={deleteTrigger} data={income} />)}
+                            incomes.map(income => <Liquid layout={Layout.Income} key={income.id} deleteTrigger={deleteTrigger} data={income} />)}
                     </div>
-                    <div className="text-center">
-                        <InputField key={pot.id} dirtyState={[dirty, setDirty]} totalState={[total, setTotal]} />
-                        <h1 className={`text-5xl mt-12 ${total < 0 ? 'text-red-600' : 'text-green-600'}`}>{total}</h1>
+                    <div className="align-middle text-center">
+                        <FluidPot pot={pot} total={total} level={level} />
                     </div>
                     <div>
                         <h4 className="text-xl">Ausgaben</h4>
@@ -72,7 +87,6 @@ export default function MoneyPot( { pot }) {
                     </div>
                 </div>
             }
-
         </div>
     );
     

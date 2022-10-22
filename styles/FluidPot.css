@@ -1,0 +1,50 @@
+:root {
+  --fillPercentageCurrentLevel: 140px;
+  --fillPercentage: 50px;
+}
+
+.banner {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    background: #ededed;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+  }
+  
+  .banner .fill {
+    animation-name: fillAction;
+    animation-iteration-count: 1;
+    animation-timing-function: cubic-bezier(.2, .6, .8, .4);
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+  }
+  
+  .banner #waveShape {
+    animation-name: waveAction;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-duration: 0.5s;
+    width: 300px;
+    height: 150px;
+    fill: #02aa61;
+  }
+  
+  @keyframes fillAction {
+    0% {
+        transform: translate(0, var(--fillPercentageCurrentLevel));
+    }
+    100% {
+        transform: translate(0, var(--fillPercentage));
+    }
+  }
+  
+  @keyframes waveAction {
+    0% {
+        transform: translate(-150px, 0);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+  }

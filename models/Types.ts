@@ -8,4 +8,8 @@ export enum FirestoreDocuments {
     Income = 'income',
 }
 
+export enum Keyboard {
+    Enter = 13
+}
+
 export type tuple = [string, number];

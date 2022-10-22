@@ -1,10 +1,10 @@
 import { Layout } from "../../models/Types";
 
-export default function IncomeItem({ data, deleteTrigger, layout }) {
+export default function Liquid({ data, deleteTrigger, layout }) {
 
     let cssClasses = 'bg-red-400';
     if (layout === Layout.Income) {
-        cssClasses = 'bg-sky-500/[.09]';
+        cssClasses = 'bg-green-300';
     }
 
     return(
