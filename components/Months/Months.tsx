@@ -19,7 +19,6 @@ export default function Months() {
 
     useEffect(() => {
         (async () => {
-            const year = JSON.stringify(new Date().getFullYear());
             const collectionRef = collection(firestore, 'users', user.uid, 'years', getCurrentYearAsString(), 'months');
             await getCollection(collectionRef, setMonths, 'sorting');
             setLoading(false);
