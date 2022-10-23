@@ -36,7 +36,7 @@ export default function AdminMoneyPotPage({  }) {
 
     return(
         <>
-            {pot && <MoneyPot month={monthId} pot={pot} key={monthId} />}
+        {pot && <MoneyPot monthId={monthId} pot={pot} key={monthId} />}
         </>
     )
 }

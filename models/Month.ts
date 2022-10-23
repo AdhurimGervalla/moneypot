@@ -1,4 +1,4 @@
-export interface Month {
+export default interface Month {
     id: string,
     uid: string,
     name: string,

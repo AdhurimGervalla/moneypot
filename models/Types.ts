@@ -17,9 +17,8 @@ export enum Keyboard {
 
 export type tuple = [string, number];
 
-
-
 export type Props = {
     pot?: Pot,
     month?: Month
+    monthId?: string
 }
