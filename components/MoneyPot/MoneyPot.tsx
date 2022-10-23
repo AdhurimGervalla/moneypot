@@ -11,6 +11,7 @@ import Ping from "../Animated/Ping";
 import {Props} from "../../models/Types";
 import {UserContext} from "../../lib/context";
 import {getCurrentYearAsString} from "../../lib/services";
+import {FluidPotConstants} from "../../models/Pot";
 
 export default function MoneyPot({monthId, pot}: Props) {
 
@@ -25,7 +26,7 @@ export default function MoneyPot({monthId, pot}: Props) {
     const [expenditures, setExpenditures] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [total, setTotal] = useState(0);
-    const [level, setLevel] = useState('140px');
+    const [level, setLevel] = useState(FluidPotConstants.Level);
 
     useEffect(() => {
         if (pot) {
@@ -41,8 +42,8 @@ export default function MoneyPot({monthId, pot}: Props) {
 
     useEffect(() => {
         if (pot.goal) {
-            if (total === 0) setLevel('140px');
-            else setLevel((150 - (150 / (pot.goal / total))) + 'px');
+            if (total === 0) setLevel(FluidPotConstants.Level);
+            else setLevel(((150 - (150 / (pot.goal / total))) + 'px') as FluidPotConstants.Level);
         }
     }, [total]);
 

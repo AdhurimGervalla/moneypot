@@ -12,3 +12,7 @@ export default interface Pot {
     description?: string,
     looping?: boolean,
 }
+
+export enum FluidPotConstants {
+    Level = '140px',
+}
