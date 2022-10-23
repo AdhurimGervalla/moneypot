@@ -82,7 +82,7 @@ export function getSnapshotFromCollection<Type>(collectionRef: CollectionReferen
 /**
  * 
  * @param {QueryDocumentSnapshot<DocumentData>} docSnap 
- * @returns {Pot} Pot
+* @returns {Type} Type
  */
 export function mergeWithId<Type>(docSnap: QueryDocumentSnapshot<DocumentData>): Type {
   return {id: docSnap.id, ...docSnap.data()} as Type;
