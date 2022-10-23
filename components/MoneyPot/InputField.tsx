@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
 import { LiquidKind } from '../../models/Liquid';
 import { tuple } from "../../models/Types";
 import { Keyboard } from "../../models/Types";

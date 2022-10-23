@@ -19,7 +19,6 @@ export default function MoneyPot({monthId, pot}: Props) {
     // TODO: Gesamte Einnahmen in der Linken Spalte ausgeben
     // TODO: Wiederkehrende Liquids definieren können
     // TODO: Interval der wiederkehr muss definiert werden können
-    // TODO: Monatliche Pots definieren
 
     const {user} = useContext(UserContext);
     const [incomes, setIncomes] = useState([]);
