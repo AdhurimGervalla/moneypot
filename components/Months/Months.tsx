@@ -9,9 +9,6 @@ import { getCurrentYearAsString } from "../../lib/services";
 
 export default function Months() {
 
-    // TODO: Alle Monate als Liste darstellen
-    // TODO: Jeder Monat enthält einen Pot
-    // TODO: Bei klick auf einen Monat kommt zum monatlichen Pot
     // TODO: [Pony] Pro Monat kann das Pot Layout geändert werden
     const { user } = useContext(UserContext);
     const [months, setMonths] = useState([]);
