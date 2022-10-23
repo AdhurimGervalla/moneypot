@@ -5,7 +5,7 @@ import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference, updateDoc, arrayUnion, FieldValue } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference, updateDoc, arrayUnion, FieldValue, orderBy } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { Dispatch, SetStateAction } from "react";
 
@@ -55,8 +55,12 @@ export async function getCollectionById<Type>(collectionRef: CollectionReference
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
-export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void) {
-  const querySnapshot = await getDocs(collectionRef);
+export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string,) {
+  let q = query(collectionRef)
+  if (orderByField) {
+    q = query(collectionRef, orderBy('sorting'));
+  }
+  const querySnapshot = await getDocs(q);
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
