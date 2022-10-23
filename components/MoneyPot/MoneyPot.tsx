@@ -7,59 +7,70 @@ import { LiquidKind } from "../../models/Liquid";
 import Expenditures from "../../models/Expenditures";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
-
+import { firestore, saveArray } from "../../lib/firebase";
+import { doc, FieldValue, updateDoc } from "firebase/firestore";
+import toast from 'react-hot-toast';
 
 export default function MoneyPot( { pot }) {
 
     const [incomes, setIncomes] = useState([]);
     const [expenditures, setExpenditures] = useState([]);
-    const [dirty, setDirty] = useState(true);
+    const [dirty, setDirty] = useState(false);
     const [total, setTotal] = useState(0);
     const [level, setLevel] = useState('140px');
+
+    useEffect(() => {
+        setIncomes(JSON.parse(pot.incomes));
+        setExpenditures(JSON.parse(pot.expenditures));
+        calculateTotal();
+        return () =>  console.log('unmount')
+    }, []);
+
+    useEffect(() => {
+        calculateTotal();
+    }, [incomes, expenditures])
+
+    useEffect(() => {
+        if (pot.goal) {
+            if (total === 0) setLevel('140px');
+            else setLevel((150 - (150 / (pot.goal / total))) + 'px');
+        }
+    }, [total]);
 
     const calculateTotal = (): void => {
         let tempTotal = 0;
         incomes.forEach((object: LiquidKind) => tempTotal += object.value);
-        expenditures.forEach((object: Expenditures) => tempTotal -= object.value);
+        expenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
         setTotal(tempTotal);
     };
 
-    useEffect(() => {
-        const incomeData = getStoredArrayFromSession('IncomeList');
-        const expenditureData = getStoredArrayFromSession('ExpenditureList');
-        if (incomeData == null || expenditureData == null) {
-            // get Data from firestore if no Session Data exists yet
-            saveArrayToSession([], 'IncomeList');
-            saveArrayToSession([], 'ExpenditureList');
-            setIncomes([]);
-            setExpenditures([]);
-            return;
-        }
-        setIncomes(incomeData);
-        setExpenditures(expenditureData);
-        calculateTotal();
-        setDirty(false);
-    }, [dirty]);
 
-    useEffect(() => {
-        if (pot.goal) {
-            console.log('setLevel')
-            if (total === 0) setLevel('140px');
-            else setLevel((150 - (150 / (pot.goal / total))) + 'px');
-        }
-    }, [total])
-
-    const deleteTrigger = (objectToRemove: {}, layout: Layout) => {
+    const deleteTrigger = (objectToRemove: LiquidKind, layout: Layout) => {
         let filtered = [];
         if (layout === Layout.Expenditure) {
             filtered = expenditures.filter((el) => el !== objectToRemove);
-            saveArrayToSession(filtered, 'ExpenditureList');
+            setExpenditures(filtered);
             
         } else {
             filtered = incomes.filter((el) => el !== objectToRemove);
-            saveArrayToSession(filtered, 'IncomeList');
+            setIncomes(filtered);
         }
         setDirty(true);
+    }
+
+    const save = () => {
+        if (dirty) {
+            const ref = doc(firestore, "moneypot", pot.id);
+            updateDoc(ref, {
+                incomes: JSON.stringify(incomes)
+            });
+            updateDoc(ref, {
+                expenditures: JSON.stringify(expenditures)
+            });
+            toast.success('Liquid saved')
+            setDirty(false);
+        }
+
     }
 
     return(
@@ -67,23 +78,24 @@ export default function MoneyPot( { pot }) {
             <h1 className="text-5xl mb-12">{pot.name}</h1>
             <div className="grid grid-cols-3">
                 <div className="col-start-2 text-center">
-                    <InputField key={pot.id} dirtyState={[dirty, setDirty]} totalState={[total, setTotal]} />
+                    <InputField key={pot.id} incomesState={[incomes, setIncomes]} expendituresState={[expenditures, setExpenditures]} totalState={[total, setTotal]} dirtyState={[dirty, setDirty]} />
                 </div>
             </div>
             {pot &&
-                <div className="grid grid-cols-3 gap-4 content-center">
-                    <div>
+                <div className="grid grid-cols-3 gap-4 content-center items-start">
+                    <div className="bg-gray-100 p-3 rounded-lg">
                         <h4 className="text-xl">Einnahmen</h4>
                         {incomes && 
                             incomes.map(income => <Liquid layout={Layout.Income} key={income.id} deleteTrigger={deleteTrigger} data={income} />)}
                     </div>
                     <div className="align-middle text-center">
                         <FluidPot pot={pot} total={total} level={level} />
+                        <button id="save-data" className="cursor-pointer bg-cyan-100 px-3 py-1 m-3 hover:bg-green-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed" onClick={save} disabled={!dirty}>SAVE</button>
                     </div>
-                    <div>
+                    <div className="bg-gray-100 p-3 rounded-lg">
                         <h4 className="text-xl">Ausgaben</h4>
                         {expenditures && 
-                            expenditures.map(expenditure => <IncomeItem layout={Layout.Expenditure} deleteTrigger={deleteTrigger} key={expenditure.id}  data={expenditure} />)}
+                            expenditures.map(expenditure => <Liquid layout={Layout.Expenditure} deleteTrigger={deleteTrigger} key={expenditure.id}  data={expenditure} />)}
                     </div>
                 </div>
             }

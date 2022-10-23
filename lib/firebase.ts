@@ -5,7 +5,7 @@ import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference, updateDoc, arrayUnion, FieldValue } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { Dispatch, SetStateAction } from "react";
 
@@ -97,6 +97,19 @@ export function buildListFromFirestoreDocs<Type>(queryResultReference: QuerySnap
  */
 export async function saveDoc<Type>(docRef: CollectionReference<DocumentData>, data: Type): Promise<void> {
   setDoc(doc(docRef), data);
+}
+
+/**
+ * Saves an array to the firestore database
+ * @param docRef Reference to the firestore Document
+ * @param key the key in which the data should be saved
+ * @param data the data which should be updated
+ */
+export async function saveArray(docRef: DocumentReference<DocumentData>, data: string): Promise<void> {
+  // Atomically add a new region to the "regions" array field.
+  await updateDoc(docRef, {
+    incomes: arrayUnion(data)
+  });
 }
 
 /**

@@ -4,7 +4,7 @@ import { LiquidKind } from '../../models/Liquid';
 import { tuple } from "../../models/Types";
 import { Keyboard } from "../../models/Types";
 
-export default function InputField({ dirtyState, totalState }) {
+export default function InputField({ incomesState, expendituresState, totalState, dirtyState }) {
 
     const [inputValue, setInputValue] = useState('');
 
@@ -25,13 +25,15 @@ export default function InputField({ dirtyState, totalState }) {
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
             const obj: LiquidKind = {"description": val[0], "value": val[1]};
-            saveArrayToSession([obj, ...getStoredArrayFromSession('IncomeList')], 'IncomeList');
+            const old = incomesState[0];
+            incomesState[1]([obj, ...old])
             totalState[1](totalState[0] + val[1]);
             dirtyState[1](true);
         } else if(input.includes('-')) {
             const val = prepareString(input, '-');
             const obj: LiquidKind = {"description": val[0], "value": val[1]};
-            saveArrayToSession([obj, ...getStoredArrayFromSession('ExpenditureList')], 'ExpenditureList');
+            const old = expendituresState[0];
+            expendituresState[1]([obj, ...old])
             totalState[1](totalState[0] - val[1]);
             dirtyState[1](true);
         }
