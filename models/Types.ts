@@ -1,3 +1,6 @@
+import Month from "./Month";
+import Pot from "./Pot";
+
 export enum Layout {
     Income,
     Expenditure
@@ -13,3 +16,10 @@ export enum Keyboard {
 }
 
 export type tuple = [string, number];
+
+
+
+export type Props = {
+    pot?: Pot,
+    month?: Month
+}

@@ -1,6 +1,7 @@
 export default interface Pot {
     id: string,
     uid: string,
+    month: number,
     name: string,
     creation_date: number,
     goal: number,
@@ -10,8 +11,4 @@ export default interface Pot {
     takeOverValue?: number,
     description?: string,
     looping?: boolean,
-}
-
-export type Props = {
-    pot: Pot
 }

@@ -11,3 +11,7 @@ export const saveArrayToSession = (data: any[], name: string = 'storage'): void 
  * @returns []
  */
 export const getStoredArrayFromSession = (name: string = 'storage'): [] => JSON.parse(sessionStorage.getItem(name));
+
+export const getCurrentYearAsString = (): string => {
+    return JSON.stringify(new Date().getFullYear());
+}

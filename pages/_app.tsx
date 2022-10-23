@@ -7,7 +7,7 @@ import Loader from '../components/Loader/Loader';
 
 function MyApp({ Component, pageProps }) {
   const userData = useUserData();
-  
+
   return (
     <UserContext.Provider value={userData}>
       {userData.loading ?

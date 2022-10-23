@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Layout } from "../../models/Types";
 import InputField from "./InputField";
 import { LiquidKind } from "../../models/Liquid";
@@ -8,10 +8,19 @@ import { firestore } from "../../lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import toast from 'react-hot-toast';
 import Ping from "../Animated/Ping";
-import {Props} from "../../models/Pot";
+import {Props} from "../../models/Types";
+import { UserContext } from "../../lib/context";
+import { getCurrentYearAsString } from "../../lib/services";
 
-export default function MoneyPot( { pot }: Props) {
+export default function MoneyPot( { month, pot }) {
 
+    // TODO: Gesamte Ausgaben in der Rechten Spalte ausgeben
+    // TODO: Gesamte Einnahmen in der Linken Spalte ausgeben
+    // TODO: Wiederkehrende Liquids definieren können
+        // TODO: Interval der wiederkehr muss definiert werden können
+    // TODO: Monatliche Pots definieren
+
+    const { user } = useContext(UserContext);
     const [incomes, setIncomes] = useState([]);
     const [expenditures, setExpenditures] = useState([]);
     const [dirty, setDirty] = useState(false);
@@ -19,9 +28,12 @@ export default function MoneyPot( { pot }: Props) {
     const [level, setLevel] = useState('140px');
 
     useEffect(() => {
-        setIncomes(JSON.parse(pot.incomes));
-        setExpenditures(JSON.parse(pot.expenditures));
-        calculateTotal();
+        if (pot) {
+            console.log(pot.incomes);
+            if (pot.incomes !== undefined) setIncomes(JSON.parse(pot.incomes));
+            if (pot.expenditures !== undefined) setExpenditures(JSON.parse(pot.expenditures));
+            calculateTotal();
+        }
     }, []);
 
     useEffect(() => {
@@ -57,7 +69,8 @@ export default function MoneyPot( { pot }: Props) {
 
     const save = () => {
         if (dirty) {
-            const ref = doc(firestore, "moneypot", pot.id);
+            console.log(pot.id)
+            const ref = doc(firestore, 'users', user.uid , 'years', getCurrentYearAsString(), 'months', month, 'pot', pot.id);
             updateDoc(ref, {
                 incomes: JSON.stringify(incomes)
             });

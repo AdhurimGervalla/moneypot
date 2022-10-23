@@ -7,6 +7,10 @@ import MoneyPotListItem from "./MoneyPotListItem";
 import Pot from '../../models/Pot';
 
 export default function MoneyPotList() {
+
+    // TODO: Alle Monate als Liste darstellen
+    // TODO: Jeder Monat enthält einen Pot
+    // TODO: Bei klick auf einen Monat kommt zum monatlichen Pot
     const { user } = useContext(UserContext);
     const [moneyPotList, setMoneyPotList] = useState([]);
     const [loading, setLoading] = useState(true);

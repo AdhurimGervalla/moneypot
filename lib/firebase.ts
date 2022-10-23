@@ -55,6 +55,11 @@ export async function getCollectionById<Type>(collectionRef: CollectionReference
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
+export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void) {
+  const querySnapshot = await getDocs(collectionRef);
+  stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
+}
+
 /**
  * 
  * @param collectionRef 
