@@ -24,14 +24,14 @@ export default function InputField({ incomesState, expendituresState, totalState
     const checkInput = async (input: string) => {
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
-            const obj: LiquidKind = {"description": val[0], "value": val[1]};
+            const obj: LiquidKind = {"description": val[0], "value": val[1]}; // TODO: generate unique di
             const old = incomesState[0];
             incomesState[1]([obj, ...old])
             totalState[1](totalState[0] + val[1]);
             dirtyState[1](true);
         } else if(input.includes('-')) {
             const val = prepareString(input, '-');
-            const obj: LiquidKind = {"description": val[0], "value": val[1]};
+            const obj: LiquidKind = {"description": val[0], "value": val[1]}; // TODO: generate unique di
             const old = expendituresState[0];
             expendituresState[1]([obj, ...old])
             totalState[1](totalState[0] - val[1]);

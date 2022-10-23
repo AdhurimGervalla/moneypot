@@ -4,7 +4,14 @@ export default interface Pot {
     name: string,
     creation_date: number,
     goal: number,
+    incomes?: string,
+    expenditures?: string,
     resetDate?: number,
     takeOverValue?: number,
-    description?: string
+    description?: string,
+    looping?: boolean,
+}
+
+export type Props = {
+    pot: Pot
 }

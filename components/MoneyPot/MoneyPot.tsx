@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { Layout } from "../../models/Types";
-import IncomeItem from "../Liquid/Liquid";
 import InputField from "./InputField";
-import { getStoredArrayFromSession, saveArrayToSession } from "../../lib/services";
 import { LiquidKind } from "../../models/Liquid";
-import Expenditures from "../../models/Expenditures";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
-import { firestore, saveArray } from "../../lib/firebase";
-import { doc, FieldValue, updateDoc } from "firebase/firestore";
+import { firestore } from "../../lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
 import toast from 'react-hot-toast';
+import Ping from "../Animated/Ping";
+import {Props} from "../../models/Pot";
 
-export default function MoneyPot( { pot }) {
+export default function MoneyPot( { pot }: Props) {
 
     const [incomes, setIncomes] = useState([]);
     const [expenditures, setExpenditures] = useState([]);
@@ -23,7 +22,6 @@ export default function MoneyPot( { pot }) {
         setIncomes(JSON.parse(pot.incomes));
         setExpenditures(JSON.parse(pot.expenditures));
         calculateTotal();
-        return () =>  console.log('unmount')
     }, []);
 
     useEffect(() => {
@@ -43,7 +41,6 @@ export default function MoneyPot( { pot }) {
         expenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
         setTotal(tempTotal);
     };
-
 
     const deleteTrigger = (objectToRemove: LiquidKind, layout: Layout) => {
         let filtered = [];
@@ -90,7 +87,10 @@ export default function MoneyPot( { pot }) {
                     </div>
                     <div className="align-middle text-center">
                         <FluidPot pot={pot} total={total} level={level} />
-                        <button id="save-data" className="cursor-pointer bg-cyan-100 px-3 py-1 m-3 hover:bg-green-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed" onClick={save} disabled={!dirty}>SAVE</button>
+                        <button id="save-data" className="cursor-pointer relative bg-cyan-100 px-3 py-1 m-3 hover:bg-green-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed" onClick={save} disabled={!dirty}>
+                            <span>Save</span>
+                            { dirty && <Ping /> }
+                        </button>
                     </div>
                     <div className="bg-gray-100 p-3 rounded-lg">
                         <h4 className="text-xl">Ausgaben</h4>

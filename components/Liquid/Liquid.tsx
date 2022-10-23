@@ -1,4 +1,5 @@
 import { Layout } from "../../models/Types";
+import DeleteSymbol from "../Animated/DeleteSymbol";
 
 export default function Liquid({ data, deleteTrigger, layout }) {
 
@@ -7,13 +8,17 @@ export default function Liquid({ data, deleteTrigger, layout }) {
         cssClasses = 'bg-green-300';
     }
 
+    const deleteRef = () => {
+        deleteTrigger(data, layout);
+    }
+    
     return(
         <>
             {data && 
-            <div className={`${cssClasses} hover:bg-cyan-600 my-5 p-3`}>
+            <div className={`${cssClasses} my-5 p-3 rounded-md relative`}>
                 <p>{data.description}</p>
                 <p>{data.value}</p>
-                <p><a className="text-blue-600 visited:text-black hover:text-black cursor-pointer" onClick={() => deleteTrigger(data, layout)}>delete</a></p>
+                <DeleteSymbol classes="absolute right-2 top-2 cursor-pointer" onClickEvent={deleteRef} />
             </div>
             }
         </>
