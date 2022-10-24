@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 export default function FluidPot({ pot, total, level }) {
 
     useEffect(() => {
-        console.log(level)
         const currentLevel = document.documentElement.style.getPropertyValue('--fillPercentage');
         const el = document.getElementById('liquid-pot');
         const newOne = el.cloneNode(true);
