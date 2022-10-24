@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import {Layout} from "../../models/Types";
 import InputField from "./InputField";
-import {LiquidKind} from "../../models/Liquid";
+import {LiquidKind} from "../../models/LiquidKind";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
 import {firestore} from "../../lib/firebase";
