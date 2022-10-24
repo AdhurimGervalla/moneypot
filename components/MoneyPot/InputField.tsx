@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { LiquidKind } from '../../models/LiquidKind';
 import { tuple } from "../../models/Types";
 import { Keyboard } from "../../models/Types";
-import { v4 as uuidv4 } from 'uuid';
-import { Timestamp } from "firebase/firestore";
+import { uuidv4 } from "@firebase/util";
 
 export default function InputField({ incomesState, expendituresState, totalState, dirtyState }) {
 
@@ -26,6 +25,7 @@ export default function InputField({ incomesState, expendituresState, totalState
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
             const obj: LiquidKind = {"id": uuidv4(), "description": val[0], "value": val[1], "creationDate": Date.now()};
+            console.log(obj)
             const old = incomesState[0];
             incomesState[1]([obj, ...old])
             totalState[1](totalState[0] + val[1]);
