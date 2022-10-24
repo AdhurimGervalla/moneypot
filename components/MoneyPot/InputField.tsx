@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { LiquidKind } from '../../models/Liquid';
+import { LiquidKind } from '../../models/LiquidKind';
 import { tuple } from "../../models/Types";
 import { Keyboard } from "../../models/Types";
+import { v4 as uuidv4 } from 'uuid';
+import { Timestamp } from "firebase/firestore";
 
 export default function InputField({ incomesState, expendituresState, totalState, dirtyState }) {
 
@@ -23,14 +25,14 @@ export default function InputField({ incomesState, expendituresState, totalState
     const checkInput = async (input: string) => {
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
-            const obj: LiquidKind = {"description": val[0], "value": val[1]}; // TODO: generate unique di
+            const obj: LiquidKind = {"id": uuidv4(), "description": val[0], "value": val[1], "creationDate": Date.now()};
             const old = incomesState[0];
             incomesState[1]([obj, ...old])
             totalState[1](totalState[0] + val[1]);
             dirtyState[1](true);
         } else if(input.includes('-')) {
             const val = prepareString(input, '-');
-            const obj: LiquidKind = {"description": val[0], "value": val[1]}; // TODO: generate unique di
+            const obj: LiquidKind = {"id": uuidv4(), "description": val[0], "value": val[1], "creationDate": Date.now()};
             const old = expendituresState[0];
             expendituresState[1]([obj, ...old])
             totalState[1](totalState[0] - val[1]);
