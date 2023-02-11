@@ -1,9 +1,7 @@
-import { getAuth } from 'firebase/auth';
 import { auth, firestore } from '../lib/firebase';
 import { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, onSnapshot } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot } from "@firebase/firestore";
+import { onAuthStateChanged } from "@firebase/auth";
 
 
 

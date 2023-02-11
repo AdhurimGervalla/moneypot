@@ -22,3 +22,11 @@ export const getCurrentYearAsString = (): string => {
 export const getCurrentMonthAsString = (): string => {
     return JSON.stringify(new Date().getMonth()+1);
 }
+export const getMonthName = (monthNumber:number): string => {
+    const date = new Date();
+    date.setMonth(monthNumber - 1);
+
+    return date.toLocaleString('en-US', {
+        month: 'long',
+    });
+}

@@ -5,7 +5,7 @@ import {LiquidKind} from "../../models/LiquidKind";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
 import {firestore} from "../../lib/firebase";
-import {doc, updateDoc} from "firebase/firestore";
+import {doc, updateDoc} from "@firebase/firestore";
 import toast from 'react-hot-toast';
 import Ping from "../Animated/Ping";
 import {Props} from "../../models/Types";
@@ -66,16 +66,19 @@ export default function MoneyPot({monthId, pot}: Props) {
         setDirty(true);
     }
 
-    const save = () => {
+    const save = async () => {
         if (dirty) {
             const ref = doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString(), 'months', monthId, 'pot', pot.id);
-            updateDoc(ref, {
-                incomes: JSON.stringify(incomes)
-            });
-            updateDoc(ref, {
-                expenditures: JSON.stringify(expenditures)
-            });
-            toast.success('Liquid saved')
+            try {
+                await Promise.all([updateDoc(ref, {
+                    incomes: JSON.stringify(incomes)
+                }), updateDoc(ref, {
+                    expenditures: JSON.stringify(expenditures)
+                })]);
+                toast.success('Liquid saved')
+            } catch (e) {
+                toast.error('Could not fill up the liquid')
+            }
             setDirty(false);
         }
 

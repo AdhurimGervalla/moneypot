@@ -1,12 +1,11 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "@firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference, updateDoc, arrayUnion, FieldValue, orderBy } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { getAuth, GoogleAuthProvider } from "@firebase/auth";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, DocumentSnapshot, CollectionReference, Unsubscribe, QueryConstraint, DocumentReference, updateDoc, arrayUnion, FieldValue, orderBy } from '@firebase/firestore';
+import { getStorage } from '@firebase/storage';
 import { Dispatch, SetStateAction } from "react";
 
 // Your web app's Firebase configuration
@@ -48,10 +47,8 @@ export async function getDocById(docName: string, docId: string): Promise<Docume
 }
 
 export async function getCollectionById<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, constraints?: QueryConstraint) {
-  console.log('start one time read');
   const q = query(collectionRef);
   const querySnapshot = await getDocs(q);
-  console.log('one time read done');
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
@@ -61,7 +58,18 @@ export async function getCollection<Type>(collectionRef: CollectionReference<Doc
     q = query(collectionRef, orderBy('sorting'));
   }
   const querySnapshot = await getDocs(q);
+
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
+}
+
+export async function getCollectionTwo<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string,) {
+  let q = query(collectionRef)
+  if (orderByField) {
+    q = query(collectionRef, orderBy('sorting'));
+  }
+  const querySnapshot = await getDocs(q);
+
+  return buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId);
 }
 
 /**
@@ -84,8 +92,8 @@ export function getSnapshotFromCollection<Type>(collectionRef: CollectionReferen
  * @param {QueryDocumentSnapshot<DocumentData>} docSnap 
 * @returns {Type} Type
  */
-export function mergeWithId<Type>(docSnap: QueryDocumentSnapshot<DocumentData>): Type {
-  return {id: docSnap.id, ...docSnap.data()} as Type;
+export function mergeWithId(docSnap: QueryDocumentSnapshot<DocumentData>): any {
+  return {id: docSnap.id, ...docSnap.data()};
 }
 
 /**
@@ -104,8 +112,8 @@ export function buildListFromFirestoreDocs<Type>(queryResultReference: QuerySnap
  * @param data 
  * @returns 
  */
-export async function saveDoc<Type>(docRef: CollectionReference<DocumentData>, data: Type): Promise<void> {
-  setDoc(doc(docRef), data);
+export async function saveDoc<Type>(docRef: DocumentReference<DocumentData>, data: Type): Promise<void> {
+  await setDoc(docRef, data);
 }
 
 /**

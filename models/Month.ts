@@ -1,7 +1,6 @@
-export default interface Month {
+export interface Month {
     id: string,
-    uid: string,
     name: string,
-    year: number,
+    sorting: number,
     layout?: string,
 }

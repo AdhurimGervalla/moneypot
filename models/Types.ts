@@ -1,4 +1,4 @@
-import Month from "./Month";
+import {Month} from "./Month";
 import Pot from "./Pot";
 
 export enum Layout {

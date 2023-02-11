@@ -4,7 +4,6 @@ import {Props} from "../../models/Types";
 import Ping from "../Animated/Ping";
 
 export default function Month({month}: Props) {
-    console.log(getCurrentMonthAsString())
     return (
             <div className={`${getCurrentMonthAsString() === month.id ? 'bg-indigo-800' : ''} bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer relative`}>
             {getCurrentMonthAsString() === month.id ? <Ping /> : ''}
