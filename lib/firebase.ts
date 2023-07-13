@@ -52,7 +52,7 @@ export async function getCollectionById<Type>(collectionRef: CollectionReference
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
-export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string,) {
+export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string) {
   let q = query(collectionRef)
   if (orderByField) {
     q = query(collectionRef, orderBy('sorting'));
@@ -62,14 +62,11 @@ export async function getCollection<Type>(collectionRef: CollectionReference<Doc
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
-export async function getCollectionTwo<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string,) {
-  let q = query(collectionRef)
-  if (orderByField) {
-    q = query(collectionRef, orderBy('sorting'));
+export async function getDocument<Type>(documentRef: DocumentReference<DocumentData>, stateCallback: (f) => void, fieldPath) {
+  const document = await getDoc(documentRef);
+  if (document.exists() && document.get(fieldPath)) {
+    stateCallback(JSON.parse(document.get(fieldPath)));
   }
-  const querySnapshot = await getDocs(q);
-
-  return buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId);
 }
 
 /**
@@ -84,8 +81,8 @@ export function getSnapshotFromCollection<Type>(collectionRef: CollectionReferen
   return onSnapshot(q, (querySnapshot) => {
       stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
   });
-
 }
+
 
 /**
  * 
@@ -102,7 +99,7 @@ export function mergeWithId(docSnap: QueryDocumentSnapshot<DocumentData>): any {
  * @param {function} callback 
  * @returns {array} Array of object
  */
-export function buildListFromFirestoreDocs<Type>(queryResultReference: QuerySnapshot<DocumentData>, callback:(doc: QueryDocumentSnapshot<DocumentData>) => Type): Type[] {
+export function buildListFromFirestoreDocs<Type>(queryResultReference, callback:(doc: QueryDocumentSnapshot<DocumentData>) => Type): Type[] {
   return queryResultReference?.docs.map((doc) => callback(doc));
 }
 
@@ -122,10 +119,10 @@ export async function saveDoc<Type>(docRef: DocumentReference<DocumentData>, dat
  * @param key the key in which the data should be saved
  * @param data the data which should be updated
  */
-export async function saveArray(docRef: DocumentReference<DocumentData>, data: string): Promise<void> {
+export async function saveArray(docRef: DocumentReference<DocumentData>, key: string, data: string): Promise<void> {
   // Atomically add a new region to the "regions" array field.
   await updateDoc(docRef, {
-    incomes: arrayUnion(data)
+    [`${key}`]: arrayUnion(data)
   });
 }
 

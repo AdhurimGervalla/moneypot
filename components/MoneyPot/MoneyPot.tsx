@@ -1,18 +1,18 @@
 import {useContext, useEffect, useState} from "react";
 import {Layout} from "../../models/Types";
 import InputField from "./InputField";
-import {LiquidKind} from "../../models/LiquidKind";
+import {LiquidKind, LiquidKindConverter} from "../../models/LiquidKind";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
-import {firestore} from "../../lib/firebase";
-import {doc, updateDoc} from "@firebase/firestore";
+import {firestore, getCollection, getDocument} from "../../lib/firebase";
+import {collection, doc, getDoc, updateDoc} from "@firebase/firestore";
 import toast from 'react-hot-toast';
 import Ping from "../Animated/Ping";
 import {Props} from "../../models/Types";
 import {UserContext} from "../../lib/context";
-import {getCurrentYearAsString} from "../../lib/services";
+import {getCurrentYearAsString, objUnion} from "../../lib/services";
 import {FluidPotConstants} from "../../models/Pot";
-
+import {unionWith, isEqual} from "lodash";
 export default function MoneyPot({monthId, pot}: Props) {
 
     // TODO: Gesamte Ausgaben in der Rechten Spalte ausgeben
@@ -22,15 +22,29 @@ export default function MoneyPot({monthId, pot}: Props) {
 
     const {user} = useContext(UserContext);
     const [incomes, setIncomes] = useState([]);
-    const [expenditures, setExpenditures] = useState([]);
-    const [dirty, setDirty] = useState(false);
-    const [total, setTotal] = useState(0);
-    const [level, setLevel] = useState(FluidPotConstants.Level);
+    const [pinedIncomes, setPinedIncomes] = useState<LiquidKind[]>(undefined);
+    const [expenditures, setExpenditures] = useState<LiquidKind[]>([]);
+    const [pinedExpenditures, setPinedExpenditures] = useState<LiquidKind[]>(undefined);
+    const [dirty, setDirty] = useState<boolean>(false);
+    const [total, setTotal] = useState<number>(0);
+    const [level, setLevel] = useState<FluidPotConstants>(FluidPotConstants.Level);
 
     useEffect(() => {
         if (pot) {
-            if (pot.incomes !== undefined) setIncomes(JSON.parse(pot.incomes));
-            if (pot.expenditures !== undefined) setExpenditures(JSON.parse(pot.expenditures));
+            (async () => {
+                // TODO: get global liquid kinds
+                await Promise.all([
+                    getDocument(doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString()), setPinedIncomes, "pinedIncomes"),
+                    getDocument(doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString()), setPinedExpenditures, "pinedExpenditures"),
+                ]);
+            })();
+
+            if (pot.incomes !== undefined) {
+                setIncomes(unionWith(JSON.parse(pot.incomes), pinedIncomes, isEqual));
+            }
+            if (pot.expenditures !== undefined) {
+                setExpenditures(unionWith(JSON.parse(pot.expenditures), pinedExpenditures, isEqual));
+            }
             calculateTotal();
         }
     }, []);
@@ -66,10 +80,32 @@ export default function MoneyPot({monthId, pot}: Props) {
         setDirty(true);
     }
 
+    const pinLiquidTrigger = (objectToPin: LiquidKind, layout: Layout) => {
+        if (layout === Layout.Expenditure) {
+            const index = pinedExpenditures.findIndex((obj: LiquidKind) => obj.id === objectToPin.id);
+            if (index === -1) {
+                setPinedExpenditures([...pinedExpenditures, objectToPin]);
+            } else {
+                setPinedExpenditures(pinedExpenditures.splice(index, 1));
+            }
+        } else {
+            const index = pinedIncomes.findIndex((obj: LiquidKind) => obj.id === objectToPin.id);
+            console.log('index', index)
+            if (index === -1) {
+                setPinedIncomes([...pinedIncomes, objectToPin]);
+            } else {
+                setPinedIncomes(pinedIncomes.splice(index, 1));
+                console.log('pinedIncomes', pinedIncomes)
+            }
+        }
+        setDirty(true);
+    }
+
     const save = async () => {
         if (dirty) {
             const ref = doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString(), 'months', monthId, 'pot', pot.id);
             try {
+                // TODO: change db structure so this is one update call
                 await Promise.all([updateDoc(ref, {
                     incomes: JSON.stringify(incomes)
                 }), updateDoc(ref, {
@@ -77,6 +113,7 @@ export default function MoneyPot({monthId, pot}: Props) {
                 })]);
                 toast.success('Liquid saved')
             } catch (e) {
+                console.error(e);
                 toast.error('Could not fill up the liquid')
             }
             setDirty(false);
@@ -100,7 +137,7 @@ export default function MoneyPot({monthId, pot}: Props) {
                         <h4 className="text-xl">Einnahmen</h4>
                         {incomes &&
                             incomes.map(income => <Liquid layout={Layout.Income} key={income.id}
-                                                          deleteTrigger={deleteTrigger} data={income}/>)}
+                                                          deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} data={income}/>)}
                     </div>
                     <div className="align-middle text-center">
                         <FluidPot pot={pot} total={total} level={level}/>
@@ -115,7 +152,7 @@ export default function MoneyPot({monthId, pot}: Props) {
                         <h4 className="text-xl">Ausgaben</h4>
                         {expenditures &&
                             expenditures.map(expenditure => <Liquid layout={Layout.Expenditure}
-                                                                    deleteTrigger={deleteTrigger} key={expenditure.id}
+                                                                    deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} key={expenditure.id}
                                                                     data={expenditure}/>)}
                     </div>
                 </div>

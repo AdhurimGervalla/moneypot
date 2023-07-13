@@ -2,7 +2,7 @@ import { auth, firestore, getDocById, googleAuthProvider } from "../lib/firebase
 import { signInWithPopup, GoogleAuthProvider, signOut } from "@firebase/auth";
 import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../lib/context";
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 import { doc, getDoc, writeBatch } from "@firebase/firestore";
 
 

@@ -25,7 +25,6 @@ export default function InputField({ incomesState, expendituresState, totalState
         if ( input.includes('+')) {
             const val = prepareString(input, '+');
             const obj: LiquidKind = {"id": uuidv4(), "description": val[0], "value": val[1], "creationDate": Date.now()};
-            console.log(obj)
             const old = incomesState[0];
             incomesState[1]([obj, ...old])
             totalState[1](totalState[0] + val[1]);

@@ -1,3 +1,4 @@
+import {uniq} from "lodash"
 
 /**
  * Saves any kind of Array to the session storage
@@ -29,4 +30,10 @@ export const getMonthName = (monthNumber:number): string => {
     return date.toLocaleString('en-US', {
         month: 'long',
     });
+}
+
+
+export const objUnion = function(array1, array2, matcher) {
+    const concated = array1.concat(array2)
+    return uniq(concated, false, matcher);
 }
