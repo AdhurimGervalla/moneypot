@@ -62,7 +62,13 @@ export async function getCollection<Type>(collectionRef: CollectionReference<Doc
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
-export async function getDocument<Type>(documentRef: DocumentReference<DocumentData>, stateCallback: (f) => void, fieldPath) {
+/**
+ * Gets a document from firestore database
+ * @param documentRef The document reference
+ * @param stateCallback The callback function which will be called when the data is fetched
+ * @param fieldPath The field path which should be fetched
+ */
+export async function getDocument<Type>(documentRef: DocumentReference<DocumentData>, stateCallback: (f) => void, fieldPath: string) {
   const document = await getDoc(documentRef);
   if (document.exists() && document.get(fieldPath)) {
     stateCallback(JSON.parse(document.get(fieldPath)));

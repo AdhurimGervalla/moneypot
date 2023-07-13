@@ -1,11 +1,11 @@
 import {useContext, useEffect, useState} from "react";
 import {Layout} from "../../models/Types";
 import InputField from "./InputField";
-import {LiquidKind, LiquidKindConverter} from "../../models/LiquidKind";
+import {LiquidKind} from "../../models/LiquidKind";
 import FluidPot from "./FluidPot";
 import Liquid from "../Liquid/Liquid";
-import {firestore, getCollection, getDocument} from "../../lib/firebase";
-import {collection, doc, getDoc, updateDoc} from "@firebase/firestore";
+import {firestore, getDocument} from "../../lib/firebase";
+import {doc, updateDoc} from "@firebase/firestore";
 import toast from 'react-hot-toast';
 import Ping from "../Animated/Ping";
 import {Props} from "../../models/Types";
@@ -21,10 +21,10 @@ export default function MoneyPot({monthId, pot}: Props) {
     // TODO: Interval der wiederkehr muss definiert werden können
 
     const {user} = useContext(UserContext);
-    const [incomes, setIncomes] = useState([]);
-    const [pinedIncomes, setPinedIncomes] = useState<LiquidKind[]>(undefined);
+    const [incomes, setIncomes] = useState<LiquidKind[]>([]);
+    const [pinedIncomes, setPinedIncomes] = useState<LiquidKind[]>([]);
     const [expenditures, setExpenditures] = useState<LiquidKind[]>([]);
-    const [pinedExpenditures, setPinedExpenditures] = useState<LiquidKind[]>(undefined);
+    const [pinedExpenditures, setPinedExpenditures] = useState<LiquidKind[]>([]);
     const [dirty, setDirty] = useState<boolean>(false);
     const [total, setTotal] = useState<number>(0);
     const [level, setLevel] = useState<FluidPotConstants>(FluidPotConstants.Level);
@@ -34,24 +34,29 @@ export default function MoneyPot({monthId, pot}: Props) {
             (async () => {
                 // TODO: get global liquid kinds
                 await Promise.all([
-                    getDocument(doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString()), setPinedIncomes, "pinedIncomes"),
-                    getDocument(doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString()), setPinedExpenditures, "pinedExpenditures"),
+                    getDocument(doc(firestore, 'users', user.uid, 'pinned', 'incomes'), setPinedIncomes, 'pinnedIncomes'),
+                    getDocument(doc(firestore, 'users', user.uid, 'pinned', 'expenditures'), setPinedExpenditures, 'pinnedExpenditures'),
                 ]);
             })();
-
-            if (pot.incomes !== undefined) {
-                setIncomes(unionWith(JSON.parse(pot.incomes), pinedIncomes, isEqual));
-            }
-            if (pot.expenditures !== undefined) {
-                setExpenditures(unionWith(JSON.parse(pot.expenditures), pinedExpenditures, isEqual));
-            }
-            calculateTotal();
+            setIncomes(unionWith(JSON.parse(pot.incomes), pinedIncomes, isEqual));
+            setExpenditures(JSON.parse(pot.expenditures));
         }
     }, []);
 
     useEffect(() => {
         calculateTotal();
     }, [incomes, expenditures])
+
+useEffect(() => {
+    console.log('pinedIncomes', pinedIncomes);
+    if (pinedIncomes.length > 0) {
+        mergePinnedIntoIncome();
+    }
+
+    if (pinedExpenditures.length > 0) {
+        mergePinnedExpendituresIntoExpenditures();
+    }
+}, [pinedIncomes, pinedExpenditures])
 
     useEffect(() => {
         if (pot.goal) {
@@ -84,18 +89,18 @@ export default function MoneyPot({monthId, pot}: Props) {
         if (layout === Layout.Expenditure) {
             const index = pinedExpenditures.findIndex((obj: LiquidKind) => obj.id === objectToPin.id);
             if (index === -1) {
+                objectToPin = {...objectToPin, pinned: true};
                 setPinedExpenditures([...pinedExpenditures, objectToPin]);
             } else {
                 setPinedExpenditures(pinedExpenditures.splice(index, 1));
             }
         } else {
             const index = pinedIncomes.findIndex((obj: LiquidKind) => obj.id === objectToPin.id);
-            console.log('index', index)
             if (index === -1) {
+                objectToPin = {...objectToPin, pinned: true};
                 setPinedIncomes([...pinedIncomes, objectToPin]);
             } else {
                 setPinedIncomes(pinedIncomes.splice(index, 1));
-                console.log('pinedIncomes', pinedIncomes)
             }
         }
         setDirty(true);
@@ -104,12 +109,18 @@ export default function MoneyPot({monthId, pot}: Props) {
     const save = async () => {
         if (dirty) {
             const ref = doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString(), 'months', monthId, 'pot', pot.id);
+            const pinnedIncomeRef = doc(firestore, 'users', user.uid, 'pinned', 'incomes');
+            const pinnedExpenditureRef = doc(firestore, 'users', user.uid, 'pinned', 'expenditures');
             try {
                 // TODO: change db structure so this is one update call
                 await Promise.all([updateDoc(ref, {
                     incomes: JSON.stringify(incomes)
                 }), updateDoc(ref, {
                     expenditures: JSON.stringify(expenditures)
+                }), updateDoc(pinnedIncomeRef, {
+                    pinnedIncomes: JSON.stringify(pinedIncomes)
+                }), updateDoc(pinnedExpenditureRef, {
+                    pinnedExpenditures: JSON.stringify(pinedExpenditures)
                 })]);
                 toast.success('Liquid saved')
             } catch (e) {
@@ -119,6 +130,16 @@ export default function MoneyPot({monthId, pot}: Props) {
             setDirty(false);
         }
 
+    }
+
+    const mergePinnedIntoIncome = () => {
+        const merged = objUnion(incomes, pinedIncomes, 'id');
+        setIncomes(merged);
+    }
+
+    const mergePinnedExpendituresIntoExpenditures = () => {
+        const merged = objUnion(expenditures, pinedExpenditures, 'id');
+        setExpenditures(merged);
     }
 
     return (
@@ -131,13 +152,14 @@ export default function MoneyPot({monthId, pot}: Props) {
                                 dirtyState={[dirty, setDirty]}/>
                 </div>
             </div>
+
             {pot &&
                 <div className="grid grid-cols-3 gap-4 content-center items-start">
                     <div className="bg-gray-100 p-3 rounded-lg">
                         <h4 className="text-xl">Einnahmen</h4>
                         {incomes &&
                             incomes.map(income => <Liquid layout={Layout.Income} key={income.id}
-                                                          deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} data={income}/>)}
+                                                            deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} data={income}/>)}
                     </div>
                     <div className="align-middle text-center">
                         <FluidPot pot={pot} total={total} level={level}/>

@@ -1,4 +1,6 @@
-import {uniq} from "lodash"
+import {uniq, uniqBy} from "lodash"
+import { LiquidKind } from "../models/LiquidKind";
+import { Layout } from "../models/Types";
 
 /**
  * Saves any kind of Array to the session storage
@@ -32,8 +34,7 @@ export const getMonthName = (monthNumber:number): string => {
     });
 }
 
-
 export const objUnion = function(array1, array2, matcher) {
     const concated = array1.concat(array2)
-    return uniq(concated, false, matcher);
+    return uniqBy(concated, matcher);
 }

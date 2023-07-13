@@ -11,6 +11,8 @@ import {UserContext} from "../../lib/context";
 export default function Liquid({ data, deleteTrigger, pinLiquidTrigger, layout }) {
     const {user} = useContext(UserContext);
 
+    console.log('data', data);
+
     let cssClasses = 'bg-red-400';
     if (layout === Layout.Income) {
         cssClasses = 'bg-green-300';
@@ -28,7 +30,7 @@ export default function Liquid({ data, deleteTrigger, pinLiquidTrigger, layout }
         <>
             {data && 
             <div className={`${cssClasses} my-5 p-3 rounded-md relative`}>
-                <BeakerSymbol classes="cursor-pointer" onClickEvent={pinLiquidRef} />
+                <BeakerSymbol classes="cursor-pointer" onClickEvent={pinLiquidRef} pinned={data.pinned} />
                 <p>{data.description}</p>
                 <p>{data.value}</p>
                 <DeleteSymbol classes="absolute right-2 top-2 cursor-pointer" onClickEvent={deleteRef} />

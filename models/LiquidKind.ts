@@ -3,7 +3,7 @@ export interface LiquidKind {
     description: string,
     value: number,
     creationDate: number,
-    monthly?: boolean,
+    pinned?: boolean,
     sorting?: number,
 }
 
