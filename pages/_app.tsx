@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }) {
           <>
             <Toaster position="top-center" reverseOrder={false} />
             <Navbar />
-            <main className='container mx-auto'>
+            <main className='container mx-auto mt-5'>
               <Component {...pageProps} />
             </main>
           </>

@@ -13,6 +13,7 @@ import {UserContext} from "../../lib/context";
 import {getCurrentYearAsString, objUnion} from "../../lib/services";
 import {FluidPotConstants} from "../../models/Pot";
 import {unionWith, isEqual, differenceWith} from "lodash";
+import Loader from "../Loader/Loader";
 export default function MoneyPot({monthId, pot}: Props) {
 
     // TODO: Gesamte Ausgaben in der Rechten Spalte ausgeben
@@ -34,10 +35,15 @@ export default function MoneyPot({monthId, pot}: Props) {
         if (pot) {
             (async () => {
                 // TODO: get global liquid kinds
-                await Promise.all([
-                    getDocument(doc(firestore, 'users', user.uid, 'pinned', 'incomes'), setPinedIncomes, 'pinnedIncomes'),
-                    getDocument(doc(firestore, 'users', user.uid, 'pinned', 'expenditures'), setPinedExpenditures, 'pinnedExpenditures'),
-                ]);
+                try {
+                    await Promise.all([
+                        getDocument(doc(firestore, 'users', user.uid, 'pinned', 'incomes'), setPinedIncomes, 'pinnedIncomes'),
+                        getDocument(doc(firestore, 'users', user.uid, 'pinned', 'expenditures'), setPinedExpenditures, 'pinnedExpenditures'),
+                    ]);
+                } catch (e) {
+                    console.error(e);
+                }
+                setLoadingPinnedData(false);
             })();
             if (pot.incomes && pot.incomes.length > 0) setIncomes(JSON.parse(pot.incomes));
             if (pot.expenditures && pot.expenditures.length > 0) setExpenditures(JSON.parse(pot.expenditures));
@@ -45,7 +51,9 @@ export default function MoneyPot({monthId, pot}: Props) {
     }, []);
 
     useEffect(() => {
-        calculateTotal();
+        if (!loadingPinnedData) {
+            calculateTotal();
+        }
     }, [incomes, expenditures, pinedIncomes, pinedExpenditures])
 
     useEffect(() => {
@@ -149,6 +157,7 @@ export default function MoneyPot({monthId, pot}: Props) {
     return (
         <div>
             <h1 className="text-5xl mb-12">{pot.name}</h1>
+            
             <div className="grid grid-cols-3">
                 <div className="col-start-2 text-center">
                     <InputField key={pot.id} incomesState={[incomes, setIncomes]}
@@ -156,8 +165,8 @@ export default function MoneyPot({monthId, pot}: Props) {
                                 dirtyState={[dirty, setDirty]}/>
                 </div>
             </div>
-
-            {pot &&
+            {loadingPinnedData && <Loader show={true}/>}
+            {!loadingPinnedData && pot &&
                 <div className="grid grid-cols-3 gap-4 content-center items-start">
                     <div className="bg-gray-100 p-3 rounded-lg">
                         <h4 className="text-xl">Incomes</h4>

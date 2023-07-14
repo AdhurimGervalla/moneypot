@@ -4,6 +4,7 @@ import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../lib/context";
 import debounce from 'lodash/debounce';
 import { doc, getDoc, writeBatch } from "@firebase/firestore";
+import Button from "../components/Button";
 
 
 export default function LoginPage(props) {
@@ -52,21 +53,33 @@ function SignInButton() {
     }
 
     return(
-        <form onSubmit={(e) => {
-            e.preventDefault();
-            const target = e.target as typeof e.target & {
-                email: { value: string };
-                password: { value: string };
-            };
-            signInWithEmailPassword(target.email.value, target.password.value);
-        }}>
-            <input className={'block'} type="email" name="email" placeholder="Email" required />
-            <input className={'block mt-2'} type="password" name="password" placeholder="Password" required />
-            <button className=" mt-4 relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-  <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-      login
-  </span>
-</button>        </form>);
+        <div className="w-full max-w-xs mx-auto">
+  <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={(e) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+        email: { value: string };
+        password: { value: string };
+    };
+    signInWithEmailPassword(target.email.value, target.password.value);
+}}>
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-bold mb-2">
+        Username
+      </label>
+      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Username" required />
+    </div>
+    <div className="mb-6">
+      <label className="block text-gray-700 text-sm font-bold mb-2">
+        Password
+      </label>
+      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" />
+    </div>
+    <div className="flex items-center justify-between">
+        <Button type="submit" theme="blue">Sign In</Button>
+    </div>
+  </form>
+</div>
+    );
 }
 
 export function SignOutButton() {
@@ -74,7 +87,7 @@ export function SignOutButton() {
         await signOut(auth);
     }
     return(
-        <button onClick={logOut}>Sign Out</button>
+        <Button onClick={logOut} theme="red">Sign Out</Button>
     );
 }
 
