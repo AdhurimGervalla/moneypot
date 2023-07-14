@@ -48,10 +48,12 @@ export default function Months() {
     }, [months]);
 
     return (
-        <div className="grid grid-cols-6 gap-4">
-            {months === undefined ? <Loader show/> :
-                months.map((el) => <Month key={el.id} month={el}/>)}
-        </div>
+        <>
+            <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {months && months.map((el) => <Month key={el.id} month={el}/>)}            
+            </ul>
+        </>
+        
     )
 }
 

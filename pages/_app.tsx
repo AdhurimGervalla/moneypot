@@ -10,16 +10,16 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <UserContext.Provider value={userData}>
-      {userData.loading ?
-        <Loader show /> :
-          <>
-            <Toaster position="top-center" reverseOrder={false} />
-            <Navbar />
-            <main className='container mx-auto mt-5'>
+      <Navbar />
+      <main className='mt-10 mx-auto max-w-7xl sm:px-6 lg:px-8'>
+        {userData.loading ?
+          <Loader show /> :
+            <>
+              <Toaster position="top-center" reverseOrder={false} />
               <Component {...pageProps} />
-            </main>
-          </>
-      }
+            </>
+        }
+      </main>
     </UserContext.Provider>
   )
 }
