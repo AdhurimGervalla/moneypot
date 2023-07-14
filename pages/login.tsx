@@ -1,5 +1,5 @@
 import { auth, firestore, getDocById, googleAuthProvider } from "../lib/firebase";
-import { signInWithPopup, GoogleAuthProvider, signOut } from "@firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, EmailAuthProvider } from "@firebase/auth";
 import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../lib/context";
 import debounce from 'lodash/debounce';
@@ -18,10 +18,8 @@ export default function LoginPage(props) {
 
 function SignInButton() {
     const singInWithGoogle = async () => {
-        console.log('clicked')
         try {
             const result = await signInWithPopup(auth, googleAuthProvider);
-            console.log(result);
             // const credential = GoogleAuthProvider.credentialFromResult(result);
             // const token = credential.accessToken;
             // The signed-in user info.
@@ -37,9 +35,38 @@ function SignInButton() {
         }
     }
 
+    const signInWithEmailPassword = async (email, password) => {
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            // The signed-in user info.
+            // const user = result.user;
+        } catch (error) {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const errorEmail = error.email;
+            // The AuthCredential type that was used.
+            const credential = EmailAuthProvider.credential(email, password);
+        }
+    }
+
     return(
-        <button className="btn-google" onClick={singInWithGoogle}>Sign In with google</button>
-    );
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            const target = e.target as typeof e.target & {
+                email: { value: string };
+                password: { value: string };
+            };
+            signInWithEmailPassword(target.email.value, target.password.value);
+        }}>
+            <input className={'block'} type="email" name="email" placeholder="Email" required />
+            <input className={'block mt-2'} type="password" name="password" placeholder="Password" required />
+            <button className=" mt-4 relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+  <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+      login
+  </span>
+</button>        </form>);
 }
 
 export function SignOutButton() {

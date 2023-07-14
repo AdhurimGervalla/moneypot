@@ -1,4 +1,4 @@
-import {uniq, uniqBy} from "lodash"
+import {uniq, unionBy} from "lodash"
 import { LiquidKind } from "../models/LiquidKind";
 import { Layout } from "../models/Types";
 
@@ -35,6 +35,5 @@ export const getMonthName = (monthNumber:number): string => {
 }
 
 export const objUnion = function(array1, array2, matcher) {
-    const concated = array1.concat(array2)
-    return uniqBy(concated, matcher);
+    return unionBy(array1, array2, matcher);
 }

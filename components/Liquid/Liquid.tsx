@@ -11,8 +11,6 @@ import {UserContext} from "../../lib/context";
 export default function Liquid({ data, deleteTrigger, pinLiquidTrigger, layout }) {
     const {user} = useContext(UserContext);
 
-    console.log('data', data);
-
     let cssClasses = 'bg-red-400';
     if (layout === Layout.Income) {
         cssClasses = 'bg-green-300';

@@ -12,7 +12,7 @@ import {Props} from "../../models/Types";
 import {UserContext} from "../../lib/context";
 import {getCurrentYearAsString, objUnion} from "../../lib/services";
 import {FluidPotConstants} from "../../models/Pot";
-import {unionWith, isEqual} from "lodash";
+import {unionWith, isEqual, differenceWith} from "lodash";
 export default function MoneyPot({monthId, pot}: Props) {
 
     // TODO: Gesamte Ausgaben in der Rechten Spalte ausgeben
@@ -21,6 +21,7 @@ export default function MoneyPot({monthId, pot}: Props) {
     // TODO: Interval der wiederkehr muss definiert werden können
 
     const {user} = useContext(UserContext);
+    const [loadingPinnedData, setLoadingPinnedData] = useState<boolean>(true);
     const [incomes, setIncomes] = useState<LiquidKind[]>([]);
     const [pinedIncomes, setPinedIncomes] = useState<LiquidKind[]>([]);
     const [expenditures, setExpenditures] = useState<LiquidKind[]>([]);
@@ -38,25 +39,14 @@ export default function MoneyPot({monthId, pot}: Props) {
                     getDocument(doc(firestore, 'users', user.uid, 'pinned', 'expenditures'), setPinedExpenditures, 'pinnedExpenditures'),
                 ]);
             })();
-            setIncomes(unionWith(JSON.parse(pot.incomes), pinedIncomes, isEqual));
-            setExpenditures(JSON.parse(pot.expenditures));
+            if (pot.incomes && pot.incomes.length > 0) setIncomes(JSON.parse(pot.incomes));
+            if (pot.expenditures && pot.expenditures.length > 0) setExpenditures(JSON.parse(pot.expenditures));
         }
     }, []);
 
     useEffect(() => {
         calculateTotal();
-    }, [incomes, expenditures])
-
-useEffect(() => {
-    console.log('pinedIncomes', pinedIncomes);
-    if (pinedIncomes.length > 0) {
-        mergePinnedIntoIncome();
-    }
-
-    if (pinedExpenditures.length > 0) {
-        mergePinnedExpendituresIntoExpenditures();
-    }
-}, [pinedIncomes, pinedExpenditures])
+    }, [incomes, expenditures, pinedIncomes, pinedExpenditures])
 
     useEffect(() => {
         if (pot.goal) {
@@ -68,7 +58,9 @@ useEffect(() => {
     const calculateTotal = (): void => {
         let tempTotal = 0;
         incomes.forEach((object: LiquidKind) => tempTotal += object.value);
+        pinedIncomes.forEach((object: LiquidKind) => tempTotal += object.value);
         expenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
+        pinedExpenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
         setTotal(tempTotal);
     };
 
@@ -91,16 +83,22 @@ useEffect(() => {
             if (index === -1) {
                 objectToPin = {...objectToPin, pinned: true};
                 setPinedExpenditures([...pinedExpenditures, objectToPin]);
+                setExpenditures(expenditures.filter((item, i) => item.id !== objectToPin.id));
             } else {
-                setPinedExpenditures(pinedExpenditures.splice(index, 1));
+                objectToPin = {...objectToPin, pinned: false};
+                setExpenditures([...expenditures, objectToPin]);
+                setPinedExpenditures(pinedExpenditures.filter((item, i) => i !== index));
             }
         } else {
             const index = pinedIncomes.findIndex((obj: LiquidKind) => obj.id === objectToPin.id);
             if (index === -1) {
                 objectToPin = {...objectToPin, pinned: true};
                 setPinedIncomes([...pinedIncomes, objectToPin]);
+                setIncomes(incomes.filter((item, i) => item.id !== objectToPin.id));
             } else {
-                setPinedIncomes(pinedIncomes.splice(index, 1));
+                objectToPin = {...objectToPin, pinned: false};
+                setIncomes([...incomes, objectToPin]);
+                setPinedIncomes(pinedIncomes.filter((item, i) => i !== index));
             }
         }
         setDirty(true);
@@ -132,14 +130,20 @@ useEffect(() => {
 
     }
 
+    function removeExistingObjects(array1, array2) {
+        return differenceWith(array1, array2, isEqual);
+      }
+
     const mergePinnedIntoIncome = () => {
-        const merged = objUnion(incomes, pinedIncomes, 'id');
-        setIncomes(merged);
+        const merged = objUnion(pinedIncomes, incomes, 'id');
+        const sortedByPriceDesc = merged.sort((a, b) => b.value - a.value);
+        setIncomes(sortedByPriceDesc);
     }
 
     const mergePinnedExpendituresIntoExpenditures = () => {
-        const merged = objUnion(expenditures, pinedExpenditures, 'id');
-        setExpenditures(merged);
+        const merged = objUnion(pinedExpenditures, expenditures, 'id');
+        const sortedByPriceDesc = merged.sort((a, b) => b.value - a.value);
+        setExpenditures(sortedByPriceDesc);
     }
 
     return (
@@ -156,9 +160,12 @@ useEffect(() => {
             {pot &&
                 <div className="grid grid-cols-3 gap-4 content-center items-start">
                     <div className="bg-gray-100 p-3 rounded-lg">
-                        <h4 className="text-xl">Einnahmen</h4>
+                        <h4 className="text-xl">Incomes</h4>
                         {incomes &&
                             incomes.map(income => <Liquid layout={Layout.Income} key={income.id}
+                                                            deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} data={income}/>)}
+                        {pinedIncomes &&
+                            pinedIncomes.map(income => <Liquid layout={Layout.Income} key={income.id}
                                                             deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} data={income}/>)}
                     </div>
                     <div className="align-middle text-center">
@@ -171,11 +178,16 @@ useEffect(() => {
                         </button>
                     </div>
                     <div className="bg-gray-100 p-3 rounded-lg">
-                        <h4 className="text-xl">Ausgaben</h4>
+                        <h4 className="text-xl">Expenditures</h4>
                         {expenditures &&
                             expenditures.map(expenditure => <Liquid layout={Layout.Expenditure}
                                                                     deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} key={expenditure.id}
                                                                     data={expenditure}/>)}
+                        {pinedExpenditures &&
+                            pinedExpenditures.map(expenditure => <Liquid layout={Layout.Expenditure}
+                                                                    deleteTrigger={deleteTrigger} pinLiquidTrigger={pinLiquidTrigger} key={expenditure.id}
+                                                                    data={expenditure}/>)}
+                                                                    
                     </div>
                 </div>
             }
