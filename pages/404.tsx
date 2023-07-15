@@ -2,27 +2,27 @@ import Link from 'next/link';
 
 export default function Custom404() {
   return (
-<div className="lg:px-24 lg:py-24 md:py-20 md:px-44 px-4 py-24 items-center flex justify-center flex-col-reverse lg:flex-row md:gap-28 gap-16">
-            <div className="xl:pt-24 w-full xl:w-1/2 relative pb-12 lg:pb-0">
-                <div className="relative">
-                    <div className="absolute">
-                        <div className="">
-                            <h1 className="my-2 text-gray-800 font-bold text-2xl">
-                                Looks like you have found the
-                                doorway to the great nothing
-                            </h1>
-                            <p className="my-2 text-gray-800">Sorry about that! Please visit our hompage to get where you need to go.</p>
-                            <button className="sm:w-full lg:w-auto my-2 border rounded md py-4 px-8 text-center bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-opacity-50">Take me there!</button>
-                        </div>
-                    </div>
-                    <div>
-                        <img src="https://i.ibb.co/G9DC8S0/404-2.png" />
-                    </div>
-                </div>
-            </div>
-            <div>
-                <img src="https://i.ibb.co/ck1SGFJ/Group.png" />
-            </div>
-        </div>
+    <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="text-center">
+      <p className="text-base font-semibold text-indigo-600">404</p>
+      <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Page not found</h1>
+      <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
+      <div className="mt-10 flex items-center justify-center gap-x-6">
+        <Link href="/">
+            <a
+            href="#"
+            className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+            Go back home
+            </a>
+        </Link>
+        <Link href="/login">
+            <a href="#" className="text-sm font-semibold text-gray-900">
+            Login <span aria-hidden="true">&rarr;</span>
+            </a>
+        </Link>
+      </div>
+    </div>
+  </main>
   );
 }
