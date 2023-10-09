@@ -57,6 +57,7 @@ export default function MoneyPot({monthId, pot}: Props) {
     }, [incomes, expenditures, pinedIncomes, pinedExpenditures])
 
     useEffect(() => {
+        console.log('total', total);
         if (pot.goal) {
             if (total === 0) setLevel(FluidPotConstants.Level);
             else setLevel(((150 - (150 / (pot.goal / total))) + 'px') as FluidPotConstants.Level);
@@ -69,7 +70,7 @@ export default function MoneyPot({monthId, pot}: Props) {
         pinedIncomes.forEach((object: LiquidKind) => tempTotal += object.value);
         expenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
         pinedExpenditures.forEach((object: LiquidKind) => tempTotal -= object.value);
-        setTotal(tempTotal);
+        setTotal(Math.round(tempTotal * 100) / 100);
     };
 
     const deleteTrigger = (objectToRemove: LiquidKind, layout: Layout) => {
