@@ -4,9 +4,6 @@
 }
 
 .banner {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
     background: #ededed;
     overflow: hidden;
     backface-visibility: hidden;

@@ -14,6 +14,9 @@ import { getCurrentYearAsString, objUnion } from "../../lib/services";
 import { FluidPotConstants } from "../../models/Pot";
 import { unionWith, isEqual, differenceWith } from "lodash";
 import Loader from "../Loader/Loader";
+import H1 from "../H1";
+import H3 from "../H3";
+import H2 from "../H2";
 export default function MoneyPot({ monthId, pot }: Props) {
   // TODO: Gesamte Ausgaben in der Rechten Spalte ausgeben
   // TODO: Gesamte Einnahmen in der Linken Spalte ausgeben
@@ -198,43 +201,25 @@ export default function MoneyPot({ monthId, pot }: Props) {
     }
   };
 
-  function removeExistingObjects(array1, array2) {
-    return differenceWith(array1, array2, isEqual);
-  }
-
-  const mergePinnedIntoIncome = () => {
-    const merged = objUnion(pinedIncomes, incomes, "id");
-    const sortedByPriceDesc = merged.sort((a, b) => b.value - a.value);
-    setIncomes(sortedByPriceDesc);
-  };
-
-  const mergePinnedExpendituresIntoExpenditures = () => {
-    const merged = objUnion(pinedExpenditures, expenditures, "id");
-    const sortedByPriceDesc = merged.sort((a, b) => b.value - a.value);
-    setExpenditures(sortedByPriceDesc);
-  };
-
   return (
     <div>
-      <h1 className="text-5xl mb-12">{pot.name}</h1>
+      <H2>{pot.name}</H2>
+      <InputWrapper>
+        <InputField
+          key={pot.id}
+          incomesState={[incomes, setIncomes]}
+          expendituresState={[expenditures, setExpenditures]}
+          totalState={[total, setTotal]}
+          dirtyState={[dirty, setDirty]}
+        />
+      </InputWrapper>
 
-      <div className="grid md:grid-cols-3">
-        <div className="md:col-start-2 text-center">
-          <InputField
-            key={pot.id}
-            incomesState={[incomes, setIncomes]}
-            expendituresState={[expenditures, setExpenditures]}
-            totalState={[total, setTotal]}
-            dirtyState={[dirty, setDirty]}
-          />
-        </div>
-      </div>
       {loadingPinnedData && <Loader show={true} />}
       {!loadingPinnedData && pot && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 content-center items-start mt-default md:mt-12">
-          <div className="bg-gray-100 p-3 rounded-lg">
-            <h4 className="text-xl mb-default">Incomes</h4>
-            <div className="grid grid-cols-liquid gap-default">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 content-center items-start mt-default md:mt-12">
+          <div>
+            <H3>Incomes</H3>
+            <LiquidWrapper>
               {incomes &&
                 incomes.map((income) => (
                   <Liquid
@@ -255,23 +240,15 @@ export default function MoneyPot({ monthId, pot }: Props) {
                     data={income}
                   />
                 ))}
-            </div>
+            </LiquidWrapper>
           </div>
-          <div className="hidden md:block align-middle text-center">
+          <div className="hidden md:block align-middle text-center md:h-auto">
             <FluidPot pot={pot} total={total} level={level} />
-            <button
-              id="save-data"
-              className="cursor-pointer relative bg-cyan-100 px-3 py-1 m-3 hover:bg-green-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
-              onClick={save}
-              disabled={!dirty}
-            >
-              <span>Save</span>
-              {dirty && <Ping />}
-            </button>
+            <Button onClick={save} dirty={dirty} />
           </div>
-          <div className="bg-gray-100 p-3 rounded-lg">
-            <h4 className="text-xl mb-default">Expenditures</h4>
-            <div className="grid grid-cols-liquid gap-default">
+          <div>
+            <H3>Expenditures</H3>
+            <LiquidWrapper>
               {expenditures &&
                 expenditures.map((expenditure) => (
                   <Liquid
@@ -292,10 +269,63 @@ export default function MoneyPot({ monthId, pot }: Props) {
                     data={expenditure}
                   />
                 ))}
-            </div>
+            </LiquidWrapper>
           </div>
         </div>
       )}
+
+      <InputWrapper mobileView={true}>
+        <InputField
+          key={pot.id}
+          incomesState={[incomes, setIncomes]}
+          expendituresState={[expenditures, setExpenditures]}
+          totalState={[total, setTotal]}
+          dirtyState={[dirty, setDirty]}
+        />
+      </InputWrapper>
     </div>
+  );
+}
+
+
+/**
+ * Wrapper for the input components
+ * @param children - components to wrap
+ */
+const InputWrapper = ({ children, mobileView = false }: {children: any, mobileView?: boolean}) => {
+  return (
+    <div className={`${mobileView ? 'block md:hidden sticky bottom-0 left-0 w-full mt-8' : 'hidden'} md:grid md:grid-cols-3`}>
+      <div className="md:col-start-2 text-center">{children}</div>
+    </div>
+  );
+};
+
+
+/**
+ * Wrapper for the liquid components
+ * @param children - components to wrap
+ */
+const LiquidWrapper = ({ children }: any) => {
+  return <div className="grid grid-cols-liquid gap-default">{children}</div>;
+};
+
+
+/**
+ * Button to save the data
+ * @param onClick - function to call when button is clicked
+ * @param dirty - boolean to check if data is dirty
+ * @returns Button
+ */
+const Button = ({ onClick, dirty }: {onClick: () => {}, dirty: boolean}) => {
+  return (
+    <button
+      id="save-data"
+      className="cursor-pointer relative bg-cyan-100 px-3 py-1 m-3 hover:bg-green-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+      onClick={onClick}
+      disabled={!dirty}
+    >
+      <span>Save</span>
+      {dirty && <Ping />}
+    </button>
   );
 }
