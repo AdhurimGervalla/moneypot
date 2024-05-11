@@ -42,7 +42,6 @@ export default function Months() {
                     console.error("Auto generation of new month failed");
                     toast.error("Auto generation of new month failed");
                 }
-
             })();
         }
     }, [months]);
