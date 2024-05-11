@@ -27,11 +27,11 @@ export default function Liquid({ data, deleteTrigger, pinLiquidTrigger, layout }
     return(
         <>
             {data && 
-            <div className={`${cssClasses} my-5 p-3 rounded-md relative`}>
-                <BeakerSymbol classes="cursor-pointer" onClickEvent={pinLiquidRef} pinned={data.pinned} />
+            <div className={`${cssClasses} px-3 pt-8 pb-3 relative`}>
+                <BeakerSymbol classes="absolute left-3 top-2 cursor-pointer" onClickEvent={pinLiquidRef} pinned={data.pinned} />
                 <p>{data.description}</p>
                 <p>{data.value}</p>
-                <DeleteSymbol classes="absolute right-2 top-2 cursor-pointer" onClickEvent={deleteRef} />
+                <DeleteSymbol classes="absolute right-3 top-2 cursor-pointer" onClickEvent={deleteRef} />
             </div>
             }
         </>

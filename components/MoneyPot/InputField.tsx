@@ -50,7 +50,7 @@ export default function InputField({ incomesState, expendituresState, totalState
 
     return(
         <>
-            <input id="liquid-input" type="text" className="px-4 py-3 rounded-full bg-[url('/enter.svg')] bg-no-repeat bg-[center_right_1rem]" placeholder="z.B. Lohn +3300" onKeyUp={onKeyUp} />
+            <input id="liquid-input" type="text" className="px-4 py-3 bg-[url('/enter.svg')] bg-no-repeat bg-[center_right_1rem] w-full" placeholder="z.B. Lohn +3300" onKeyUp={onKeyUp} />
         </>
     );
 }

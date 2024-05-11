@@ -11,7 +11,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <UserContext.Provider value={userData}>
       <Navbar />
-      <main className='mt-10 mx-auto max-w-7xl sm:px-6 lg:px-8'>
+      <main className='mt-10 mx-auto max-w-7xl px-default md:px-8'>
         {userData.loading ?
           <Loader show /> :
             <>

@@ -28,7 +28,6 @@ export default function AdminMoneyPotPage({}) {
                 setPot(mergeWithId(docSnap));
             })();
         }
-
     },[])
 
     return (

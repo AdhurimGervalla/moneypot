@@ -218,8 +218,8 @@ export default function MoneyPot({ monthId, pot }: Props) {
     <div>
       <h1 className="text-5xl mb-12">{pot.name}</h1>
 
-      <div className="grid grid-cols-3">
-        <div className="col-start-2 text-center">
+      <div className="grid md:grid-cols-3">
+        <div className="md:col-start-2 text-center">
           <InputField
             key={pot.id}
             incomesState={[incomes, setIncomes]}
@@ -231,31 +231,33 @@ export default function MoneyPot({ monthId, pot }: Props) {
       </div>
       {loadingPinnedData && <Loader show={true} />}
       {!loadingPinnedData && pot && (
-        <div className="grid grid-cols-3 gap-4 content-center items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 content-center items-start mt-default md:mt-12">
           <div className="bg-gray-100 p-3 rounded-lg">
-            <h4 className="text-xl">Incomes</h4>
-            {incomes &&
-              incomes.map((income) => (
-                <Liquid
-                  layout={Layout.Income}
-                  key={income.id}
-                  deleteTrigger={deleteTrigger}
-                  pinLiquidTrigger={pinLiquidTrigger}
-                  data={income}
-                />
-              ))}
-            {pinedIncomes &&
-              pinedIncomes.map((income) => (
-                <Liquid
-                  layout={Layout.Income}
-                  key={income.id}
-                  deleteTrigger={deleteTrigger}
-                  pinLiquidTrigger={pinLiquidTrigger}
-                  data={income}
-                />
-              ))}
+            <h4 className="text-xl mb-default">Incomes</h4>
+            <div className="grid grid-cols-liquid gap-default">
+              {incomes &&
+                incomes.map((income) => (
+                  <Liquid
+                    layout={Layout.Income}
+                    key={income.id}
+                    deleteTrigger={deleteTrigger}
+                    pinLiquidTrigger={pinLiquidTrigger}
+                    data={income}
+                  />
+                ))}
+              {pinedIncomes &&
+                pinedIncomes.map((income) => (
+                  <Liquid
+                    layout={Layout.Income}
+                    key={income.id}
+                    deleteTrigger={deleteTrigger}
+                    pinLiquidTrigger={pinLiquidTrigger}
+                    data={income}
+                  />
+                ))}
+            </div>
           </div>
-          <div className="align-middle text-center">
+          <div className="hidden md:block align-middle text-center">
             <FluidPot pot={pot} total={total} level={level} />
             <button
               id="save-data"
@@ -268,27 +270,29 @@ export default function MoneyPot({ monthId, pot }: Props) {
             </button>
           </div>
           <div className="bg-gray-100 p-3 rounded-lg">
-            <h4 className="text-xl">Expenditures</h4>
-            {expenditures &&
-              expenditures.map((expenditure) => (
-                <Liquid
-                  layout={Layout.Expenditure}
-                  deleteTrigger={deleteTrigger}
-                  pinLiquidTrigger={pinLiquidTrigger}
-                  key={expenditure.id}
-                  data={expenditure}
-                />
-              ))}
-            {pinedExpenditures &&
-              pinedExpenditures.map((expenditure) => (
-                <Liquid
-                  layout={Layout.Expenditure}
-                  deleteTrigger={deleteTrigger}
-                  pinLiquidTrigger={pinLiquidTrigger}
-                  key={expenditure.id}
-                  data={expenditure}
-                />
-              ))}
+            <h4 className="text-xl mb-default">Expenditures</h4>
+            <div className="grid grid-cols-liquid gap-default">
+              {expenditures &&
+                expenditures.map((expenditure) => (
+                  <Liquid
+                    layout={Layout.Expenditure}
+                    deleteTrigger={deleteTrigger}
+                    pinLiquidTrigger={pinLiquidTrigger}
+                    key={expenditure.id}
+                    data={expenditure}
+                  />
+                ))}
+              {pinedExpenditures &&
+                pinedExpenditures.map((expenditure) => (
+                  <Liquid
+                    layout={Layout.Expenditure}
+                    deleteTrigger={deleteTrigger}
+                    pinLiquidTrigger={pinLiquidTrigger}
+                    key={expenditure.id}
+                    data={expenditure}
+                  />
+                ))}
+            </div>
           </div>
         </div>
       )}
