@@ -7,17 +7,24 @@ import { uuidv4 } from "@firebase/util";
 export default function InputField({ incomesState, expendituresState, totalState, dirtyState }) {
 
     const [inputValue, setInputValue] = useState('');
+    const [value, setValue] = useState('');
 
     useEffect(() => {
         checkInput(inputValue);
     }, [inputValue]);
+
 
     const onKeyUp = (e) => {
         if (e.keyCode == Keyboard.Enter) {
             const val = e.target.value;
             const withoutSpace = val.replaceAll(/\s/g,'');
             setInputValue(withoutSpace);
+            setValue('');
         }
+    }
+
+    const onChange = (e) => {
+        setValue( e.target.value);
     }
 
 
@@ -50,7 +57,7 @@ export default function InputField({ incomesState, expendituresState, totalState
 
     return(
         <>
-            <input id="liquid-input" type="text" className="px-4 py-3 bg-[url('/enter.svg')] bg-no-repeat bg-[center_right_1rem] w-full" placeholder="z.B. Lohn +3300" onKeyUp={onKeyUp} />
+            <input value={value} onChange={onChange} id="liquid-input" type="text" className="px-4 py-3 bg-[url('/enter.svg')] bg-no-repeat bg-[center_right_1rem] w-full" placeholder="z.B. Lohn +3300" onKeyUp={onKeyUp} />
         </>
     );
 }
