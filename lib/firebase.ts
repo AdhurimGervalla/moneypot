@@ -52,6 +52,13 @@ export async function getCollectionById<Type>(collectionRef: CollectionReference
   stateCallback(buildListFromFirestoreDocs<Type>(querySnapshot, mergeWithId));
 }
 
+/**
+ * Gets a collection from firestore database
+ * @param collectionRef The collection reference
+ * @param stateCallback The callback function which will be called when the data is fetched
+ * @param orderByField The field which should be used for ordering
+ * @returns void
+ */
 export async function getCollection<Type>(collectionRef: CollectionReference<DocumentData>, stateCallback: (f) => void, orderByField?: string) {
   let q = query(collectionRef)
   if (orderByField) {
