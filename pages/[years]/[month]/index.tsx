@@ -22,7 +22,7 @@ export default function AdminMoneyPotPage({}) {
                 const potRef:DocumentReference<DocumentData> = doc(firestore, 'users', user.uid, 'years', getCurrentYearAsString(), 'months', monthId, 'pot', monthId);
                 let docSnap = await getDoc(potRef);
                 if (!docSnap.exists()) {
-                    await setDoc(potRef, {id: monthId, name: getMonthName(parseInt(getCurrentMonthAsString())), goal: 20000} as Pot); //TODO: if pot does not exist, show form to enter pot informations
+                    await setDoc(potRef, {id: monthId, name: getMonthName(parseInt(getCurrentMonthAsString())), goal: 3000} as Pot); //TODO: if pot does not exist, show form to enter pot informations
                     docSnap = await getDoc(potRef);
                 }
                 setPot(mergeWithId(docSnap));
